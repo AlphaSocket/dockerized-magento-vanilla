@@ -1,0 +1,34 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - sudo apt update && sudo apt install curl libfcgi0ldbl -y
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" $DOCKER_REGISTER;
+  - docker build 
+        --no-cache 
+        -t 03192859189254/magento-vanilla:latest
+        --build-arg BUILD_COMMIT=`git rev-parse --short HEAD` 
+        --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` .
+
+script:
+# Starting magento-cli container
+ - TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla 03192859189254/magento-vanilla:latest )
+ - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+
+# Testing magento-cli container
+ - if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+        echo "Magento-cli container failed, print logs and exiting\n";
+        docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
+    fi
+# Echo success
+ - echo "### Test Succeeded\n"
+
+
+
+after_success:
+  - if [ "$DOCKER_USERNAME" ]; then
+        docker tag 03192859189254/magento-vanilla:latest ${DOCKER_REGISTER}/${DOCKER_USERNAME}/magento-vanilla:latest;
+        docker push ${DOCKER_REGISTER}/${DOCKER_USERNAME}/magento-vanilla:latest;
+    fi

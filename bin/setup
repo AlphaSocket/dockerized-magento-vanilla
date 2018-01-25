@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+
+# exit if a command fails
+set -e
+
+# Install mage-install script 
+curl -o $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $SETUP_MAGENTO_INSTALL_SCRIPT_URL
+chmod +x $SETUP_MAGENTO_INSTALL_SCRIPT_PATH
+
+
+
+exit 0

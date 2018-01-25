@@ -1,0 +1,53 @@
+#!/bin/sh
+
+#
+# Local test script to build and test docker image
+#
+
+# exit if a command fails
+set -e
+
+CURL=$(which curl)
+DOCKER=$(which docker)
+
+if [ CURL = '' ]; then
+    echo 'The package curl is required\n'
+    exit 1
+fi
+
+if [ DOCKER = '' ]; then
+    echo 'Docker is required\n'
+    exit 1
+fi
+
+echo "#\n# Building image\n#\n"
+docker build \
+    --no-cache \
+    -t 03192859189254/magento-vanilla:latest \
+    --build-arg BUILD_COMMIT=`git rev-parse --short HEAD` \
+    --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    .
+
+echo "#\n# Cleaning docker\n#\n"
+running_containers=$(docker ps -aq)
+if [ "$running_containers" ] 
+    then
+        docker stop $running_containers -t 0 && docker system prune -f
+fi
+
+echo "#\n# Running test\n#\n"
+# Starting magento-cli container
+TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla 03192859189254/magento-vanilla:latest )
+TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+
+# Testing magento-cli container
+if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+    echo "Magento-cli container failed, print logs and exiting\n";
+    docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
+fi
+# Echo success
+echo "### Test Succeeded\n"
+
+
+
+exit 0
