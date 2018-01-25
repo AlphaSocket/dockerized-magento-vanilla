@@ -15,8 +15,8 @@ ENV \
 	GENERAL_KEYS_DEV="dev" \
 	GENERAL_KEYS_PRD="prd" \
 	BUILD_NAME="magento-vanilla" \
-	BUILD_BRANCH="master" \
-	BUILD_VERSION="master" \
+	BUILD_BRANCH="latest" \
+	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
 	BUILD_DOCKERFILE_IMAGE="quay.io/alphasocket/magento-cli-alpine:latest" \
 	BUILD_DOCKERFILE_WORKDIR="/var/www/html" \
