@@ -1,0 +1,157 @@
+project: 
+  title: &project_title Alphasocket/dockerized-magento-vanilla
+  codename: &project_codename magento-vanilla
+  description: Magento vanilla container
+
+#
+# Init builder
+#
+general:
+  envvars:
+    docker:
+      user: &general_docker_user 03192859189254 
+    keys:
+      True: "True"
+      false: "False"
+      dev: "dev"
+      prd: "prd"
+    
+#
+# Build process
+# Creates dockerfile and file used in it
+#
+build:
+  envvars:
+    name: *project_codename
+    branch:
+      valueFromCommand: 'git rev-parse --abbrev-ref HEAD'
+    version:
+      valueFromCommand: 'echo $BUILD_BRANCH | cut -d \- -f 1'
+    env:
+      valueFromCommand: 'env=$(echo $BUILD_BRANCH | cut -d \- -f 2); [ "$env" = "$BUILD_VERSION" ] && echo $GENERAL_KEYS_PRD || echo $env'
+    # Docker
+    dockerfile:
+      image: quay.io/alphasocket/magento-cli-alpine:latest
+      workdir: /var/www/html
+
+#
+# Setup process injected in dockerfile
+#
+setup:
+  # Setup env 
+  envvars:
+    magento:
+      install:
+        script:
+          url: https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install
+          path: $CONFIG_PATHS_BINARIES/mage-install
+    dependencies:
+      # Dependencies installed in the image
+      setup: ""
+      # Dependencies installed during runtime
+      config: ""
+  # Setup Processes
+  processes:
+    
+    - title: "Install mage-install script "
+      commands: 
+        - curl -o $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $SETUP_MAGENTO_INSTALL_SCRIPT_URL 
+        - chmod +x $SETUP_MAGENTO_INSTALL_SCRIPT_PATH
+
+#
+# Config process run just before the entrypoint
+#
+config:
+  # Config env 
+  envvars:
+    project:
+      codename: "vanilla"
+      description: "Magento Vanilla"
+    user: vanilla
+    group: magento
+    admin:
+      username: "admin"
+      lastname: "Admin"
+      firstname: "Admin"
+      email: "jhon@doe.ie"
+      pass: "password.123"     
+
+    magento:
+      version: "magento-mirror-1.9.3.6"
+      user: $CONFIG_USER
+      group: $CONFIG_GROUP
+      url: "http://www.magento.vanilla/"
+      install:
+        folder: "/var/www/html"
+        env:
+          path: "/usr/local/mage_install_env"
+      use:
+        rewrites: "yes"
+        secure: "no"
+        base_url: ""
+        secure_admin: "no"
+      skip_url_validation: "yes" 
+      locale: en_IE
+      timezone: "Europe/Dublin"
+      currency: "EUR"
+      session:
+        save: "db"
+      admin:
+        frontname: "admin"
+      backend:
+        frontname: "admin"
+      disable:
+        cache: "no"
+      set_privileges_ownership: "no"
+      developer_mode: "yes"
+    db:
+      host: "127.0.0.2"
+      name: "database"
+      user: "root"
+      pass: "root"
+      prefix: ""
+    composer:
+      init: "no"
+
+  processes:
+    - title: "Setup user and group"
+      commands:
+        - addgroup -S "$CONFIG_GROUP"
+        - adduser -S -g "$CONFIG_USER" "$CONFIG_GROUP"
+
+    - title: "Install magento"
+      commands:
+        - $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH
+
+test:
+  envvars:
+    name: $BUILD_NAME
+    port: 30080
+    dockerfile:
+      tag: 
+        user: *general_docker_user
+        name: $BUILD_NAME
+        version: $BUILD_BRANCH
+
+  processes:
+    #
+    # Starting
+    #
+    - title: "Starting magento-cli container"
+      commands:
+        - TEST_CONTAINER_MAGENTO_CLI_ID=$(
+            docker run 
+              -d --name=$TEST_NAME
+              ${TEST_DOCKERFILE_TAG_USER}/${TEST_DOCKERFILE_TAG_NAME}:${TEST_DOCKERFILE_TAG_VERSION}
+          )
+        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+
+    - title: "Testing magento-cli container"
+      shell_condition: '! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
+      commands:
+        - echo "Magento-cli container failed, print logs and exiting\n"
+        - docker logs $TEST_CONTAINER_MAGENTO_CLI_ID
+
+    - title: "Echo success"
+      commands:
+        - echo "### Test Succeeded\n" 

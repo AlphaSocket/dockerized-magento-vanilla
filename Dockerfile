@@ -1,7 +1,6 @@
-FROM quay.io/alphasocket/magento-cli:latest
+FROM quay.io/alphasocket/magento-cli-alpine:latest
 
-ENV \
-    MAGENTO_INSTALL_ENV_PATH="/usr/local/mage_install_env" \ 
+ENV MAGENTO_INSTALL_ENV_PATH="/usr/local/mage_install_env" \
     MAGENTO_INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install" \
     MAGENTO_INSTALL_SCRIPT_PATH="$CONFIG_PATHS_BINARIES/mage-install" \
     PROJECT_CODENAME="vanilla" \
@@ -33,9 +32,9 @@ ENV \
     MAGENTO_DISABLE_CACHE="no" \
     MAGENTO_SET_PRIVILEGES_OWNER="no" \
     MAGENTO_USER="$CONFIG_USER" \
-    $MAGENTO_GROUP="$CONFIG_GROUP" \
+    MAGENTO_GROUP="$CONFIG_GROUP" \
     COMPOSER_INIT="no" \
-    MAGENTO_DEVELOPER_MODE="yes" \
+    MAGENTO_DEVELOPER_MODE="yes" 
 
 ADD mage_install_env $MAGENTO_INSTALL_ENV
 
