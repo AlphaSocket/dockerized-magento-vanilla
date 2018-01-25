@@ -1,0 +1,48 @@
+#!/usr/bin/env
+#
+# System
+php="$(which php)"
+n98magerun="$(which n98-magerun.phar)"
+composer=$(which composer.phar)
+mysql=$(which mysql)
+mageconfigsync=$(which mageconfigsync)
+# General
+project_name="$PROJECT_CODENAME"
+project_description="$PROJECT_DESCRIPTION"
+# Installation
+installation_folder="$INSTALLATION_FOLDER"
+magento_version_by_name="$MAGENTO_VERSION"
+locale="$MAGENTO_LOCALE"
+timezone="$MAGENTO_TIMEZONE"
+default_currency="$MAGENTO_DEFAULT_CURRENCY"
+# DB
+db_host="$DB_HOST"
+db_name="$DB_NAME"
+db_user="$DB_USER"
+db_pass="$DB_PASS"
+db_prefix="$DB_PREFIX"
+# URL
+url="$MAGENTO_URL"
+use_rewrites="$MAGENTO_USE_REWRITES"
+use_secure="$MAGENTO_USE_SECURE"
+secure_base_url="$MAGENTO_SECURE_BASE_URL"
+use_secure_admin="$MAGENTO_USE_SECURE_ADMIN"
+skip_url_validation="$MAGENTO_SKIP_URL_VALIDATION"
+# Admin
+admin_username="$ADMIN_USERNAME"
+admin_lastname="$ADMIN_LASTNAME"
+admin_firstname="$ADMIN_FIRSTNAME"
+admin_email="$ADMIN_EMAIL"
+admin_password="$ADMIN_PASS"
+session_save="$MAGENTO_SESSION_SAVE"
+admin_frontname="$MAGENTO_ADMIN_FRONTNAME"
+backend_frontname="$MAGENTO_BACKEND_FRONTNAME"
+# Cache
+disable_cache="$MAGENTO_DISABLE_CACHE"
+# Privileges
+set_privileges_ownership="$MAGENTO_SET_PRIVILEGES_OWNER"
+file_owner="$MAGENTO_USER:$MAGENTO_GROUP"
+# Composer
+init_composer="$COMPOSER_INIT"
+# Activate developer mode
+activate_developer_mode_and_log="$MAGENTO_DEVELOPER_MODE"
