@@ -5,6 +5,7 @@
 Magento vanilla container
 
 ## Branches & Versions
+- latest
 
 
 ## Packages installed
