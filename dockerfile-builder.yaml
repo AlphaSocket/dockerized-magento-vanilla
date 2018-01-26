@@ -35,6 +35,8 @@ build:
       image: registry.hub.docker.com/alphasocket/magento-cli-alpine:latest
       workdir: /var/www/html
       cmd: /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL
+  import:
+    - "mage_install_env:/usr/local/mage_install_env"
 
 #
 # Setup process injected in dockerfile
@@ -69,7 +71,7 @@ config:
     project:
       codename: "vanilla"
       description: "Magento Vanilla"
-    user: vanilla
+    user: magento-vanilla
     group: magento
     admin:
       username: "admin"
@@ -107,7 +109,7 @@ config:
       set_privileges_ownership: "no"
       developer_mode: "yes"
     db:
-      host: "127.0.0.2"
+      host: "127.0.0.1"
       name: "database"
       user: "root"
       pass: "root"
@@ -116,18 +118,21 @@ config:
       init: "no"
 
   processes:
-    - title: "Config user"
-      commands:
-        - adduser -S "$CONFIG_USER" "$CONFIG_GROUP"
 
     - title: "Install magento"
       commands:
-        - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH
+        - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
 
 test:
   envvars:
     name: $BUILD_NAME
     port: 30080
+    db:
+      name: magento_test
+      user: magento
+      pass: vanillaPass
+      root:
+        pass: root
     dockerfile:
       tag: 
         user: *general_docker_user
@@ -138,11 +143,39 @@ test:
     #
     # Starting
     #
+    - title: "Starting pause container"
+      commands:
+        - TEST_CONTAINER_PAUSE_ID=$(
+            docker run 
+              -d --name=${TEST_NAME}-pause-tester
+              03192859189254/dockerized-nginx-tester:latest
+          )
+        - TEST_CONTAINER_PAUSE_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_PAUSE_ID)
+
+
+    - title: "Starting DB container"
+      commands:
+        - TEST_CONTAINER_DB_ID=$(
+            docker run 
+              -d --name=${TEST_NAME}-mariadb-tester
+              --net=container:${TEST_NAME}-pause-tester
+              -e MYSQL_DATABASE=$TEST_DB_NAME
+              -e MYSQL_USER=$TEST_DB_USER
+              -e MYSQL_PASSWORD=$TEST_DB_PASS
+              -e MYSQL_ROOT_PASSWORD=$TEST_DB_ROOT_PASS
+              mariadb:latest
+          )
+        - TEST_CONTAINER_DB_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_DB_ID)
+
     - title: "Starting magento-cli container"
       commands:
         - TEST_CONTAINER_MAGENTO_CLI_ID=$(
             docker run 
               -d --name=$TEST_NAME
+              --net=container:${TEST_NAME}-pause-tester
+              -e CONFIG_DB_NAME=$TEST_DB_NAME
+              -e CONFIG_DB_USER=$TEST_DB_USER
+              -e CONFIG_DB_PASS=$TEST_DB_PASS
               ${TEST_DOCKERFILE_TAG_USER}/${TEST_DOCKERFILE_TAG_NAME}:${TEST_DOCKERFILE_TAG_VERSION}
           )
         - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
@@ -153,7 +186,22 @@ test:
         - echo "Magento-cli container failed, print logs and exiting\n"
         - docker logs $TEST_CONTAINER_MAGENTO_CLI_ID
 
-    - title: "Echo success"
+    - title: "Testing magento installation"
       shell_condition: '"$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
+      commands:
+        - MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" )
+        - MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success")
+
+    #
+    # Echo results
+    #
+    - title: "Echo failure"
+      shell_condition: '! "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success"'
+      commands:
+        - echo "Magento isntallation failed, print logs and exiting\n"
+        - docker logs $TEST_NAME
+
+    - title: "Echo success"
+      shell_condition: '"$MAGENTO_INSTALLATION_REPORT_TEST" = "Success"'
       commands:
         - echo "### Test Succeeded\n" 
