@@ -119,6 +119,23 @@ config:
 
   processes:
 
+    - title: "Clean installation folder"
+      commands:
+        - rm ${MAGENTO_INSTALL_FOLDER}/* -rf 
+
+    - title: "Wait until the DB is ready"
+      commands:
+        - CONDITION="mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}"
+        - MAX_TRIES=300
+        - SECONDS_BETWEEN_TRIES=1
+        - c=0
+        - while ! eval "$CONDITION"; 
+          do 
+            if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi;
+            echo "Waiting for db.. Try $c failed"; 
+            sleep ${SECONDS_BETWEEN_TRIES}; 
+          done
+
     - title: "Install magento"
       commands:
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
