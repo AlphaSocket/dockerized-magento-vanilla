@@ -71,12 +71,12 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1516964439
-ADD bin/config /usr/local/bin/config/1516964439
+ADD bin/setup /usr/local/bin/setup/1516965273
+ADD bin/config /usr/local/bin/config/1516965273
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1516964439 
+    /usr/local/bin/setup/1516965273 
 
 
 WORKDIR /var/www/html
