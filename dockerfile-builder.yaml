@@ -9,7 +9,8 @@ project:
 general:
   envvars:
     docker:
-      user: &general_docker_user 03192859189254 
+      user: &general_docker_user 03192859189254
+      registry: registry.hub.docker.com
     keys:
       True: "True"
       false: "False"
@@ -31,8 +32,9 @@ build:
       valueFromCommand: 'env=$(echo $BUILD_BRANCH | cut -d \- -f 2); [ "$env" = "$BUILD_VERSION" ] && echo $GENERAL_KEYS_PRD || echo $env'
     # Docker
     dockerfile:
-      image: quay.io/alphasocket/magento-cli-alpine:latest
+      image: registry.hub.docker.com/alphasocket/magento-cli-alpine:latest
       workdir: /var/www/html
+      cmd: /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL
 
 #
 # Setup process injected in dockerfile
@@ -114,10 +116,9 @@ config:
       init: "no"
 
   processes:
-    - title: "Setup user and group"
+    - title: "Config user"
       commands:
-        - addgroup -S "$CONFIG_GROUP"
-        - adduser -S -g "$CONFIG_USER" "$CONFIG_GROUP"
+        - adduser -S "$CONFIG_USER" "$CONFIG_GROUP"
 
     - title: "Install magento"
       commands:
@@ -144,7 +145,7 @@ test:
               -d --name=$TEST_NAME
               ${TEST_DOCKERFILE_TAG_USER}/${TEST_DOCKERFILE_TAG_NAME}:${TEST_DOCKERFILE_TAG_VERSION}
           )
-        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
     - title: "Testing magento-cli container"
       shell_condition: '! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
@@ -153,5 +154,6 @@ test:
         - docker logs $TEST_CONTAINER_MAGENTO_CLI_ID
 
     - title: "Echo success"
+      shell_condition: '"$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
       commands:
         - echo "### Test Succeeded\n" 

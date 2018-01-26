@@ -1,15 +1,16 @@
 #
 # Do not change content here, image automatically built
 #
-FROM quay.io/alphasocket/magento-cli-alpine:latest
+FROM registry.hub.docker.com/alphasocket/magento-cli-alpine:latest
 
 ARG BUILD_COMMIT
 ARG BUILD_TIME
 
 ENV \
-	 BUILD_COMMIT=$BUILD_COMMIT \
-	 BUILD_DATE=$BUILD_DATE \
+	BUILD_COMMIT=$BUILD_COMMIT \
+	BUILD_DATE=$BUILD_DATE \
 	GENERAL_DOCKER_USER="03192859189254" \
+	GENERAL_DOCKER_REGISTRY="registry.hub.docker.com" \
 	GENERAL_KEYS_TRUE="True" \
 	GENERAL_KEYS_FALSE="False" \
 	GENERAL_KEYS_DEV="dev" \
@@ -18,8 +19,9 @@ ENV \
 	BUILD_BRANCH="latest" \
 	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
-	BUILD_DOCKERFILE_IMAGE="quay.io/alphasocket/magento-cli-alpine:latest" \
+	BUILD_DOCKERFILE_IMAGE="registry.hub.docker.com/alphasocket/magento-cli-alpine:latest" \
 	BUILD_DOCKERFILE_WORKDIR="/var/www/html" \
+	BUILD_DOCKERFILE_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
 	SETUP_MAGENTO_INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install" \
 	SETUP_MAGENTO_INSTALL_SCRIPT_PATH="$CONFIG_PATHS_BINARIES/mage-install" \
 	SETUP_DEPENDENCIES_SETUP="" \
@@ -60,19 +62,27 @@ ENV \
 	CONFIG_DB_PREFIX="" \
 	CONFIG_COMPOSER_INIT="no"
 
-ADD envvars /usr/local/envvars
-ADD bin/setup /usr/local/bin/setup
-ADD bin/config /usr/local/bin/config
+RUN if [ ! -d "/usr/local/bin/setup" ]; then \
+        mkdir -p /usr/local/bin/setup; \
+    fi \
+    && \
+    if [ ! -d "/usr/local/bin/config" ]; then \
+        mkdir -p /usr/local/bin/config; \
+    fi
 
-RUN chmod +rx /usr/local/bin/setup && \
-    chmod +rx /usr/local/bin/config && \
+ADD bin/docker-config /usr/local/bin/docker-config
+ADD bin/setup /usr/local/bin/setup/1516964368
+ADD bin/config /usr/local/bin/config/1516964368
+
+RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup 
+    /usr/local/bin/setup/1516964368 
 
 
+WORKDIR /var/www/html
 
 ENTRYPOINT ["/bin/sh", "-c"]
-
+CMD ["/usr/local/bin/docker-config && /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL"]
 
 LABEL \
     org.label-schema.vcs-ref=$BUILD_COMMIT \
