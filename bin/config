@@ -4,7 +4,7 @@
 set -e
 
 # Clean installation folder
-rm ${MAGENTO_INSTALL_FOLDER}/* -rf
+rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
 
 # Wait until the DB is ready
 CONDITION="mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}"
