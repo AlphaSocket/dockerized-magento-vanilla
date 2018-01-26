@@ -15,7 +15,7 @@ before_install:
 script:
 # Starting magento-cli container
  - TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla 03192859189254/magento-vanilla:latest )
- - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+ - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
 # Testing magento-cli container
  - if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
@@ -23,8 +23,9 @@ script:
         docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
     fi
 # Echo success
- - echo "### Test Succeeded\n"
-
+ - if [ "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+        echo "### Test Succeeded\n";
+    fi
 
 
 after_success:

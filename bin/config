@@ -3,9 +3,8 @@
 # exit if a command fails
 set -e
 
-# Setup user and group
-addgroup -S "$CONFIG_GROUP"
-adduser -S -g "$CONFIG_USER" "$CONFIG_GROUP"
+# Config user
+adduser -S "$CONFIG_USER" "$CONFIG_GROUP"
 
 # Install magento
 $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH
