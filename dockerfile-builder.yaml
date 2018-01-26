@@ -121,7 +121,7 @@ config:
 
     - title: "Clean installation folder"
       commands:
-        - rm ${MAGENTO_INSTALL_FOLDER}/* -rf 
+        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
 
     - title: "Wait until the DB is ready"
       commands:
