@@ -36,8 +36,16 @@ if [ "$running_containers" ]
 fi
 
 echo "#\n# Running test\n#\n"
+# Starting pause container
+TEST_CONTAINER_PAUSE_ID=$( docker run -d --name=magento-vanilla-pause-tester 03192859189254/dockerized-nginx-tester:latest )
+TEST_CONTAINER_PAUSE_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_PAUSE_ID)
+
+# Starting DB container
+TEST_CONTAINER_DB_ID=$( docker run -d --name=magento-vanilla-mariadb-tester --net=container:magento-vanilla-pause-tester -e MYSQL_DATABASE=magento_test -e MYSQL_USER=magento -e MYSQL_PASSWORD=vanillaPass -e MYSQL_ROOT_PASSWORD=root mariadb:latest )
+TEST_CONTAINER_DB_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_DB_ID)
+
 # Starting magento-cli container
-TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla 03192859189254/magento-vanilla:latest )
+TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla --net=container:magento-vanilla-pause-tester -e CONFIG_DB_NAME=magento_test -e CONFIG_DB_USER=magento -e CONFIG_DB_PASS=vanillaPass 03192859189254/magento-vanilla:latest )
 TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
 # Testing magento-cli container
@@ -45,8 +53,18 @@ if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
     echo "Magento-cli container failed, print logs and exiting\n";
     docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
 fi
-# Echo success
+# Testing magento installation
 if [ "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+    MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" );
+    MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success");
+fi
+# Echo failure
+if [ ! "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success" ]; then
+    echo "Magento isntallation failed, print logs and exiting\n";
+    docker logs magento-vanilla;
+fi
+# Echo success
+if [ "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success" ]; then
     echo "### Test Succeeded\n";
 fi
 

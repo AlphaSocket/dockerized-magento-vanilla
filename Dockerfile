@@ -28,7 +28,7 @@ ENV \
 	SETUP_DEPENDENCIES_CONFIG="" \
 	CONFIG_PROJECT_CODENAME="vanilla" \
 	CONFIG_PROJECT_DESCRIPTION="Magento Vanilla" \
-	CONFIG_USER="vanilla" \
+	CONFIG_USER="magento-vanilla" \
 	CONFIG_GROUP="magento" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
@@ -36,7 +36,7 @@ ENV \
 	CONFIG_ADMIN_EMAIL="jhon@doe.ie" \
 	CONFIG_ADMIN_PASS="password.123" \
 	CONFIG_MAGENTO_VERSION="magento-mirror-1.9.3.6" \
-	CONFIG_MAGENTO_USER="vanilla" \
+	CONFIG_MAGENTO_USER="magento-vanilla" \
 	CONFIG_MAGENTO_GROUP="magento" \
 	CONFIG_MAGENTO_URL="http://www.magento.vanilla/" \
 	CONFIG_MAGENTO_INSTALL_FOLDER="/var/www/html" \
@@ -55,7 +55,7 @@ ENV \
 	CONFIG_MAGENTO_DISABLE_CACHE="no" \
 	CONFIG_MAGENTO_SET_PRIVILEGES_OWNERSHIP="no" \
 	CONFIG_MAGENTO_DEVELOPER_MODE="yes" \
-	CONFIG_DB_HOST="127.0.0.2" \
+	CONFIG_DB_HOST="127.0.0.1" \
 	CONFIG_DB_NAME="database" \
 	CONFIG_DB_USER="root" \
 	CONFIG_DB_PASS="root" \
@@ -71,12 +71,13 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1516965273
-ADD bin/config /usr/local/bin/config/1516965273
+ADD bin/setup /usr/local/bin/setup/1516972406
+ADD bin/config /usr/local/bin/config/1516972406
+ADD mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1516965273 
+    /usr/local/bin/setup/1516972406 
 
 
 WORKDIR /var/www/html
