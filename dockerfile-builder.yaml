@@ -125,7 +125,16 @@ config:
 
     - title: "Wait until the DB is ready"
       commands:
-        - while [ ! mysql -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ]; do sleep 1; done;
+        - CONDITION="mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}"
+        - MAX_TRIES=300
+        - SECONDS_BETWEEN_TRIES=1
+        - c=0
+        - while ! eval "$CONDITION"; 
+          do 
+            if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi;
+            echo "Waiting for db.. Try $c failed"; 
+            sleep ${SECONDS_BETWEEN_TRIES}; 
+          done
 
     - title: "Install magento"
       commands:
