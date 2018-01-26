@@ -119,9 +119,9 @@ config:
 
   processes:
 
-    - title: "Clean installation folder"
-      commands:
-        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
+    #- title: "Clean installation folder"
+    #  commands:
+    #    - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
 
     - title: "Wait until the DB is ready"
       commands:
@@ -136,7 +136,8 @@ config:
             sleep ${SECONDS_BETWEEN_TRIES}; 
           done
 
-    - title: "Install magento"
+    - title: "Install magento if not installed"
+      bash_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
 
