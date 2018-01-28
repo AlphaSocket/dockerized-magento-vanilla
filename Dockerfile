@@ -74,14 +74,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517140532
-ADD bin/config /usr/local/bin/config/1517140532
+ADD bin/setup /usr/local/bin/setup/1517144442
+ADD bin/config /usr/local/bin/config/1517144442
 ADD imports/templates /usr/local/templates
 ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517140532 
+    /usr/local/bin/setup/1517144442 
 
 
 WORKDIR /var/www/html
