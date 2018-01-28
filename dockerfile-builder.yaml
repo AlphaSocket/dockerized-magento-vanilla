@@ -10,7 +10,7 @@ general:
   envvars:
     docker:
       user: &general_docker_user 03192859189254
-      registry: registry.hub.docker.com
+      registry: docker.io
     keys:
       True: "True"
       false: "False"
@@ -36,7 +36,8 @@ build:
       workdir: /var/www/html
       cmd: /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL
   import:
-    - "mage_install_env:/usr/local/mage_install_env"
+    - "imports/templates:/usr/local/templates"
+    - "imports/mage_install_env:/usr/local/mage_install_env"
 
 #
 # Setup process injected in dockerfile
@@ -73,6 +74,12 @@ config:
       description: "Magento Vanilla"
     user: magento-vanilla
     group: magento
+    paths:
+      templates:
+        redis: /usr/local/templates/redis.xml
+      config:
+        redis: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
+    
     admin:
       username: "admin"
       lastname: "Admin"
@@ -86,7 +93,7 @@ config:
       group: $CONFIG_GROUP
       url: "http://www.magento.vanilla/"
       install:
-        folder: "/var/www/html"
+        folder: $CONFIG_PATHS_WEBROOT
         env:
           path: "/usr/local/mage_install_env"
       use:
@@ -114,14 +121,17 @@ config:
       user: "root"
       pass: "root"
       prefix: ""
+    redis:
+      enabled: $GENERAL_KEY_FALSE
+      host: 127.0.0.1
+      port: 6379
     composer:
       init: "no"
 
   processes:
-
-    #- title: "Clean installation folder"
-    #  commands:
-    #    - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
+    - title: "Clean installation folder"
+      commands:
+        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
 
     - title: "Wait until the DB is ready"
       commands:
@@ -140,6 +150,12 @@ config:
       bash_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
+
+    - title: "Setup redis config"
+      shell_condition: '"$CONFIG_REDIS_ENABLED" = "$GENERAL_KEY_TRUE"'
+      commands:
+        - '[ -d "$CONFIG_PATHS_WEBROOT/app/etc/" ] || mkdir -p "$CONFIG_PATHS_WEBROOT/app/etc/"'
+        - envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS
 
 test:
   envvars:
