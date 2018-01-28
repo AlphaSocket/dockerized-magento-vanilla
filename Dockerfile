@@ -4,13 +4,11 @@
 FROM registry.hub.docker.com/alphasocket/magento-cli-alpine:latest
 
 ARG BUILD_COMMIT
-ARG BUILD_TIME
+ARG BUILD_DATE
 
 ENV \
-	BUILD_COMMIT=$BUILD_COMMIT \
-	BUILD_DATE=$BUILD_DATE \
 	GENERAL_DOCKER_USER="03192859189254" \
-	GENERAL_DOCKER_REGISTRY="registry.hub.docker.com" \
+	GENERAL_DOCKER_REGISTRY="docker.io" \
 	GENERAL_KEYS_TRUE="True" \
 	GENERAL_KEYS_FALSE="False" \
 	GENERAL_KEYS_DEV="dev" \
@@ -30,6 +28,8 @@ ENV \
 	CONFIG_PROJECT_DESCRIPTION="Magento Vanilla" \
 	CONFIG_USER="magento-vanilla" \
 	CONFIG_GROUP="magento" \
+	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
+	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
 	CONFIG_ADMIN_FIRSTNAME="Admin" \
@@ -39,7 +39,7 @@ ENV \
 	CONFIG_MAGENTO_USER="magento-vanilla" \
 	CONFIG_MAGENTO_GROUP="magento" \
 	CONFIG_MAGENTO_URL="http://www.magento.vanilla/" \
-	CONFIG_MAGENTO_INSTALL_FOLDER="/var/www/html" \
+	CONFIG_MAGENTO_INSTALL_FOLDER="$CONFIG_PATHS_WEBROOT" \
 	CONFIG_MAGENTO_INSTALL_ENV_PATH="/usr/local/mage_install_env" \
 	CONFIG_MAGENTO_USE_REWRITES="yes" \
 	CONFIG_MAGENTO_USE_SECURE="no" \
@@ -60,6 +60,9 @@ ENV \
 	CONFIG_DB_USER="root" \
 	CONFIG_DB_PASS="root" \
 	CONFIG_DB_PREFIX="" \
+	CONFIG_REDIS_ENABLED="$GENERAL_KEY_FALSE" \
+	CONFIG_REDIS_HOST="127.0.0.1" \
+	CONFIG_REDIS_PORT="6379" \
 	CONFIG_COMPOSER_INIT="no"
 
 RUN if [ ! -d "/usr/local/bin/setup" ]; then \
@@ -71,13 +74,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1516978907
-ADD bin/config /usr/local/bin/config/1516978907
-ADD mage_install_env /usr/local/mage_install_env
+ADD bin/setup /usr/local/bin/setup/1517140532
+ADD bin/config /usr/local/bin/config/1517140532
+ADD imports/templates /usr/local/templates
+ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1516978907 
+    /usr/local/bin/setup/1517140532 
 
 
 WORKDIR /var/www/html
