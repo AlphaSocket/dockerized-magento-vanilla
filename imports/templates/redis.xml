@@ -25,11 +25,10 @@
         <redis_session>
             <host>$CONFIG_REDIS_HOST</host>
             <port>$CONFIG_REDIS_PORT</port>
-            <password></password>
+            <password>$CONFIG_REDIS_PASS</password>
             <timeout>2.5</timeout>
             <persistent></persistent>
             <db>1</db>
-            <password>$CONFIG_REDIS_PASS</password>
             <compression_threshold>2048</compression_threshold>
             <compression_lib>gzip</compression_lib>
             <log_level>1</log_level>
