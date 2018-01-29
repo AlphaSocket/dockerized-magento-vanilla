@@ -160,7 +160,7 @@ config:
         # Magento installation
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
         # Adding admin
-        - n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
+        #- n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
         # Cleaning env file
         - rm /tmp/magento_vanilla_env
     
