@@ -1,7 +1,7 @@
 #
 # Do not change content here, image automatically built
 #
-FROM registry.hub.docker.com/alphasocket/magento-cli-alpine:latest
+FROM docker.io/alphasocket/magento-cli-alpine:latest
 
 ARG BUILD_COMMIT
 ARG BUILD_DATE
@@ -17,7 +17,7 @@ ENV \
 	BUILD_BRANCH="latest" \
 	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
-	BUILD_DOCKERFILE_IMAGE="registry.hub.docker.com/alphasocket/magento-cli-alpine:latest" \
+	BUILD_DOCKERFILE_IMAGE="docker.io/alphasocket/magento-cli-alpine:latest" \
 	BUILD_DOCKERFILE_WORKDIR="/var/www/html" \
 	BUILD_DOCKERFILE_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
 	SETUP_MAGENTO_INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install" \
@@ -77,14 +77,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517187584
-ADD bin/config /usr/local/bin/config/1517187584
+ADD bin/setup /usr/local/bin/setup/1517191883
+ADD bin/config /usr/local/bin/config/1517191883
 ADD imports/templates /usr/local/templates
 ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517187584 
+    /usr/local/bin/setup/1517191883 
 
 
 WORKDIR /var/www/html
