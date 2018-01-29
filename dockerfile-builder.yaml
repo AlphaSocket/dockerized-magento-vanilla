@@ -80,6 +80,12 @@ config:
       config:
         redis: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
     
+    sample:
+      data:
+        version: 1.9.1.0
+        install: False
+        url: http://sourceforge.net/projects/mageloads/files/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz 
+          
     admin:
       username: "admin"
       lastname: "Admin"
@@ -104,7 +110,8 @@ config:
       skip_url_validation: "yes" 
       locale: en_IE
       timezone: "Europe/Dublin"
-      currency: "EUR"
+      default:
+        currency: EUR
       session:
         save: "db"
       admin:
@@ -150,12 +157,25 @@ config:
       bash_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
+    
+    - title: "Install magento if not installed"
+      bash_condition: '"${CONFIG_SAMPLE_DATA_INSTALL}" = "$GENERAL_KEYS_TRUE"'
+      commands:
+        - curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz $CONFIG_SAMPLE_DATA_URL
+        - tar -xvC /tmp -f /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz
+        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
+        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
+        - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
+        - n98-magerun.phar cache:flush
+        - n98-magerun.phar index:reindex:all
 
     - title: "Setup redis config"
-      shell_condition: '"$CONFIG_REDIS_ENABLED" = "$GENERAL_KEY_TRUE"'
+      shell_condition: '"$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE"'
       commands:
         - '[ -d "$CONFIG_PATHS_WEBROOT/app/etc/" ] || mkdir -p "$CONFIG_PATHS_WEBROOT/app/etc/"'
         - envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS
+        #- sed -i -e 's/<active>false</active>/<active>true</active>/g' $CONFIG_PATHS_WEBROOT/app/etc/modules/Cm_RedisSession.xml
+        - n98-magerun.phar dev:module:enable Cm_RedisSession
 
 test:
   envvars:
