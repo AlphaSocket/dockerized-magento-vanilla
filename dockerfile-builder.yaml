@@ -157,6 +157,7 @@ config:
       commands:
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
+        - n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
         - rm /tmp/magento_vanilla_env
     
     - title: "Install magento sample data"
@@ -180,7 +181,7 @@ config:
 
     - title: "End conf"
       commands:
-        - n98-magerun.phar cache:flush
+        - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
         - echo "ready" > /tmp/container_status
 
