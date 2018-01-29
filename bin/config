@@ -17,6 +17,7 @@ while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(
 if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env;
     $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
+    n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME";
     rm /tmp/magento_vanilla_env;
 fi
 # Install magento sample data
@@ -36,7 +37,7 @@ if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
     n98-magerun.phar dev:module:enable Cm_RedisSession;
 fi
 # End conf
-n98-magerun.phar cache:flush
+n98-magerun.phar cache:clean
 n98-magerun.phar sys:check
 echo "ready" > /tmp/container_status
 
