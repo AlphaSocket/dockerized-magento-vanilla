@@ -16,10 +16,20 @@ while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(
 # Install magento if not installed
 $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
 
+# Install magento if not installed
+curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz $CONFIG_SAMPLE_DATA_URL
+tar -xvC /tmp -f /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz
+cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
+cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
+mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
+n98-magerun.phar cache:flush
+n98-magerun.phar index:reindex:all
+
 # Setup redis config
-if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEY_TRUE" ]; then
+if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
     [ -d "$CONFIG_PATHS_WEBROOT/app/etc/" ] || mkdir -p "$CONFIG_PATHS_WEBROOT/app/etc/";
     envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
+    n98-magerun.phar dev:module:enable Cm_RedisSession;
 fi
 
 
