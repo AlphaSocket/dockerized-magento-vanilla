@@ -155,20 +155,29 @@ config:
     - title: "Install magento if not installed"
       shell_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
+        # Building env file
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
+        # Magento installation
         - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
+        # Adding admin
         - n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
+        # Cleaning env file
         - rm /tmp/magento_vanilla_env
     
     - title: "Install magento sample data"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
+        # Download sample data
         - curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip $CONFIG_SAMPLE_DATA_URL
+        # Extract
         - cat /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip | unzip -d /tmp -
+        # Apply files to installation
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
         - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
+        # Reindex 
         - n98-magerun.phar index:reindex:all
+        # Cleaning
         - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
 
     - title: "Setup redis config"
