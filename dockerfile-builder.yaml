@@ -166,7 +166,6 @@ config:
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
         - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
-        - n98-magerun.phar cache:flush
         - n98-magerun.phar index:reindex:all
         - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
 
@@ -177,6 +176,13 @@ config:
         - envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS
         #- sed -i -e 's/<active>false</active>/<active>true</active>/g' $CONFIG_PATHS_WEBROOT/app/etc/modules/Cm_RedisSession.xml
         - n98-magerun.phar dev:module:enable Cm_RedisSession
+
+    - title: "End conf"
+      commands:
+        - n98-magerun.phar cache:flush
+        - n98-magerun.phar sys:check
+        - echo "ready" > /tmp/container_status
+
 
 test:
   envvars:
