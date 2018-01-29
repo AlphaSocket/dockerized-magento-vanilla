@@ -82,10 +82,9 @@ config:
     
     sample:
       data:
-        version: 1.9.1.0
+        version: 1.9.2.4
         install: False
-        url: http://sourceforge.net/projects/mageloads/files/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz 
-          
+        url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip 
     admin:
       username: "admin"
       lastname: "Admin"
@@ -156,13 +155,15 @@ config:
     - title: "Install magento if not installed"
       shell_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
-        - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr
+        - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
+        - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
+        - rm /tmp/magento_vanilla_env
     
     - title: "Install magento sample data"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
-        - curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz $CONFIG_SAMPLE_DATA_URL
-        - tar -xvC /tmp -f /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz
+        - curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip $CONFIG_SAMPLE_DATA_URL
+        - cat /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip | unzip -d /tmp -
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
         - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
