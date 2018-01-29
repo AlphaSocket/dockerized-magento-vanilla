@@ -30,9 +30,9 @@ ENV \
 	CONFIG_GROUP="magento" \
 	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
 	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
-	CONFIG_SAMPLE_DATA_VERSION="1.9.1.0" \
+	CONFIG_SAMPLE_DATA_VERSION="1.9.2.4" \
 	CONFIG_SAMPLE_DATA_INSTALL="False" \
-	CONFIG_SAMPLE_DATA_URL="http://sourceforge.net/projects/mageloads/files/assets/1.9.1.0/magento-sample-data-1.9.1.0.tar.gz" \
+	CONFIG_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.2.4/magento-sample-data-1.9.2.4.zip" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
 	CONFIG_ADMIN_FIRSTNAME="Admin" \
@@ -77,14 +77,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517191883
-ADD bin/config /usr/local/bin/config/1517191883
+ADD bin/setup /usr/local/bin/setup/1517195878
+ADD bin/config /usr/local/bin/config/1517195878
 ADD imports/templates /usr/local/templates
 ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517191883 
+    /usr/local/bin/setup/1517195878 
 
 
 WORKDIR /var/www/html

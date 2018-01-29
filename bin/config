@@ -15,16 +15,17 @@ while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(
 
 # Install magento if not installed
 if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
-    $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_ENV_PATH 1>/dev/stdout 2>/dev/stderr;
+    envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env;
+    $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
+    rm /tmp/magento_vanilla_env;
 fi
 # Install magento sample data
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz $CONFIG_SAMPLE_DATA_URL;
-    tar -xvC /tmp -f /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.tar.gz;
+    curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip $CONFIG_SAMPLE_DATA_URL;
+    cat /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip | unzip -d /tmp -;
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/";
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/";
     mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql;
-    n98-magerun.phar cache:flush;
     n98-magerun.phar index:reindex:all;
     rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf;
 fi
@@ -34,6 +35,11 @@ if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
     envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
     n98-magerun.phar dev:module:enable Cm_RedisSession;
 fi
+# End conf
+n98-magerun.phar cache:flush
+n98-magerun.phar sys:check
+echo "ready" > /tmp/container_status
+
 
 
 exit 0
