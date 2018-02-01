@@ -1,0 +1,17 @@
+commands:
+
+  N98\Magento\Command\Installer\InstallCommand:
+    installation:
+      defaults:
+        currency: "$CONFIG_MAGENTO_DEFAULT_CURRENCY"
+        locale: "$CONFIG_MAGENTO_LOCALE"
+        timezone: "$CONFIG_MAGENTO_TIMEZONE"
+        use_secure: "$CONFIG_MAGENTO_USE_SECURE"
+        use_rewrites: "$CONFIG_MAGENTO_USE_REWRITES"
+        session_save: "$CONFIG_MAGENTO_SESSION_SAVE"
+        admin_username: "$CONFIG_ADMIN_USERNAME"
+        admin_firstname: "$CONFIG_ADMIN_FIRSTNAME"
+        admin_lastname: "$CONFIG_ADMIN_LASTNAME"
+        admin_password: "$CONFIG_ADMIN_PASS"
+        admin_frontname: "$CONFIG_MAGENTO_ADMIN_FRONTNAME"
+        admin_email: "$CONFIG_ADMIN_EMAIL"
