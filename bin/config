@@ -3,6 +3,10 @@
 # exit if a command fails
 set -e
 
+# Install mage-install script 
+curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL
+chmod +x $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH
+
 # Clean installation folder
 rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
 
@@ -19,14 +23,22 @@ if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
     rm /tmp/magento_vanilla_env;
 fi
+# Configure composer
+composer.phar config packagist.org false
+composer.phar config repositories.firegento composer https://packages.firegento.com
+composer.phar config repositories.sf9 composer https://packages.sf9dev.com
+composer.phar require magento-hackathon/magento-composer-installer
+composer.phar require firegento/debug
+composer.phar require studioforty9/toolbox
+
 # Install magento sample data
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip $CONFIG_SAMPLE_DATA_URL;
-    cat /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip | unzip -d /tmp -;
+    if [ ! ls "$CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" ] || [ ! cat "CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" | unzip -ql - ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
+    cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -;
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/";
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/";
     mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql;
-    n98-magerun.phar index:reindex:all;
+    n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME";
     rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf;
 fi
 # Setup redis config
@@ -35,7 +47,16 @@ if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
     envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
     n98-magerun.phar dev:module:enable Cm_RedisSession;
 fi
+# Setup turpentine if requested
+if [ "$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
+    composer.phar require connect20/nexcessnet_turpentine;
+    n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST";
+    n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY";
+    envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
+    n98-magerun.phar dev:module:enable Nexcessnet_Turpentine;
+fi
 # End conf
+n98-magerun.phar index:reindex:all
 n98-magerun.phar cache:clean
 n98-magerun.phar sys:check
 echo "ready" > /tmp/container_status
