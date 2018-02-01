@@ -53,7 +53,6 @@ if [ "$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
     composer.phar require connect20/nexcessnet_turpentine;
     n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST";
     n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY";
-    envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
     n98-magerun.phar dev:module:enable Nexcessnet_Turpentine;
 fi
 # End conf

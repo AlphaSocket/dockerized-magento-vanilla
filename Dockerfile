@@ -34,10 +34,10 @@ ENV \
 	CONFIG_GROUP="magento" \
 	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
 	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
-	CONFIG_SAMPLE_DATA_VERSION="1.9.3.6" \
+	CONFIG_SAMPLE_DATA_VERSION="1.9.2.4" \
 	CONFIG_SAMPLE_DATA_INSTALL="False" \
-	CONFIG_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.3.6/magento-sample-data-1.9.3.6.zip" \
-	CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION="/tmp/magento-sample-data-1.9.3.6.zip" \
+	CONFIG_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.2.4/magento-sample-data-1.9.2.4.zip" \
+	CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION="/tmp/magento-sample-data-1.9.2.4.zip" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
 	CONFIG_ADMIN_FIRSTNAME="Admin" \
@@ -90,14 +90,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517491016
-ADD bin/config /usr/local/bin/config/1517491016
+ADD bin/setup /usr/local/bin/setup/1517505690
+ADD bin/config /usr/local/bin/config/1517505690
 ADD imports/templates /usr/local/templates
 ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517491016 
+    /usr/local/bin/setup/1517505690 
 
 
 WORKDIR /var/www/html

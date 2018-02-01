@@ -89,7 +89,7 @@ config:
     
     sample:
       data:
-        version: $SETUP_CACHE_MAGENTO_INSTALLER_VERSION
+        version: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
         install: False
         url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
         archive:
@@ -256,7 +256,6 @@ config:
         - composer.phar require connect20/nexcessnet_turpentine
         - n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST"
         - n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY"
-        - envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS
         - n98-magerun.phar dev:module:enable Nexcessnet_Turpentine
     
     - title: "End conf"
