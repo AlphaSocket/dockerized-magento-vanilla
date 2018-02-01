@@ -45,23 +45,28 @@ build:
 setup:
   # Setup env 
   envvars:
-    magento:
-      install:
-        script:
-          url: https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install
-          path: $CONFIG_PATHS_BINARIES/mage-install
     dependencies:
       # Dependencies installed in the image
       setup: ""
       # Dependencies installed during runtime
       config: ""
+    cache:
+      magento:
+        installer:
+          version: 1.9.3.6
+          url: https://github.com/OpenMage/magento-mirror/archive/${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}.zip
+          path: ~/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
+        sample_data:
+          version: 1.9.2.4
+          url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
+          path: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
+      
   # Setup Processes
   processes:
-    
-    - title: "Install mage-install script "
+    - title: "Download cache"
       commands: 
-        - curl -o $SETUP_MAGENTO_INSTALL_SCRIPT_PATH $SETUP_MAGENTO_INSTALL_SCRIPT_URL 
-        - chmod +x $SETUP_MAGENTO_INSTALL_SCRIPT_PATH
+        - curl -o $SETUP_CACHE_MAGENTO_INSTALLER_PATH $SETUP_CACHE_MAGENTO_INSTALLER_URL 
+        - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL 
 
 #
 # Config process run just before the entrypoint
@@ -82,9 +87,11 @@ config:
     
     sample:
       data:
-        version: 1.9.2.4
+        version: $SETUP_CACHE_MAGENTO_INSTALLER_VERSION
         install: False
-        url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip 
+        url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
+        archive:
+          location: /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
     admin:
       username: "admin"
       lastname: "Admin"
@@ -98,6 +105,9 @@ config:
       group: $CONFIG_GROUP
       url: "http://www.magento.vanilla/"
       install:
+        script:
+          url: https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install
+          path: $CONFIG_PATHS_BINARIES/mage-install
         folder: $CONFIG_PATHS_WEBROOT
         env:
           path: "/usr/local/mage_install_env"
@@ -115,8 +125,6 @@ config:
         save: "db"
       admin:
         frontname: "admin"
-      backend:
-        frontname: "admin"
       disable:
         cache: "no"
       set_privileges_ownership: "no"
@@ -128,13 +136,28 @@ config:
       pass: "root"
       prefix: ""
     redis:
-      enabled: $GENERAL_KEY_FALSE
+      enabled: $GENERAL_KEYS_FALSE
       host: 127.0.0.1
       port: 6379
+    turpentine:
+      enabled: $GENERAL_KEYS_FALSE
+      backend:
+        ip: 127.0.0.1
+        port: 8080
+        control_panel:
+          ip: 127.0.0.1
+          port: 6082
+      serverlist: '$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP:$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT'
+      auth_key: ""
     composer:
-      init: "no"
+      init: "yes"
 
   processes:
+    - title: "Install mage-install script "
+      commands: 
+        - curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL 
+        - chmod +x $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH
+    
     - title: "Clean installation folder"
       commands:
         - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
@@ -156,27 +179,63 @@ config:
       shell_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
         # Building env file
+        #- envsubst < /usr/local/templates/.n98-magerun.yaml > ~/.n98-magerun.yaml
+        #- if [ "${CONFIG_MAGENTO_DEVELOPER_MODE}" = 'yes' ] ; then DEVELOPER_MODE='--developer-mode'; fi
+        
+        # Magento installation
+        #- n98-magerun.phar install \
+        #    --installationFolder="${CONFIG_MAGENTO_INSTALL_FOLDER}" \
+        #    --magentoVersionByName="${CONFIG_MAGENTO_VERSION}" \
+        #    --installSampleData="${CONFIG_SAMPLE_DATA_INSTALL}" \
+        #    
+        #- n98-magerun.phar install \
+        #    --installationFolder="${CONFIG_MAGENTO_INSTALL_FOLDER}" \
+        #    --magentoVersionByName="${CONFIG_MAGENTO_VERSION}" \
+        #    --dbHost="${CONFIG_DB_HOST}" \
+        #    --dbName="${CONFIG_DB_NAME}" \
+        #    --dbUser="${CONFIG_DB_USER}" \
+        #    --dbPass="${CONFIG_DB_PASS}" \
+        #    --dbPrefix="${CONFIG_DB_PREFIX}" \
+        #    --baseUrl="${CONFIG_MAGENTO_URL}" \
+        #    --installSampleData="${CONFIG_SAMPLE_DATA_INSTALL}" \
+        #    ${DEVELOPER_MODE} \
+        #    --useDefaultConfigParams=yes 1>/dev/stdout 2>/dev/stderr
+        #
+        
+        # Building env file
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
         # Magento installation
-        - $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
-        # Adding admin
-        #- n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
+        - "$SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
         # Cleaning env file
         - rm /tmp/magento_vanilla_env
+        
+        
+    - title: "Configure composer"
+      commands:
+        #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER}
+        - composer.phar config packagist.org false
+        - composer.phar config repositories.firegento composer https://packages.firegento.com
+        - composer.phar config repositories.sf9 composer https://packages.sf9dev.com
+        - composer.phar require magento-hackathon/magento-composer-installer
+        - composer.phar require firegento/debug
+        - composer.phar require studioforty9/toolbox
+        
     
     - title: "Install magento sample data"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - curl -o /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip $CONFIG_SAMPLE_DATA_URL
+        - if [ ! ls "$CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" ] || [ ! cat "CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" | unzip -ql - ]; then \
+            curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
+          fi
         # Extract
-        - cat /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip | unzip -d /tmp -
+        - cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -
         # Apply files to installation
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
         - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
         - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
-        # Reindex 
-        - n98-magerun.phar index:reindex:all
+        # Restoring admin removed by sample data query
+        - n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
         # Cleaning
         - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
 
@@ -188,12 +247,21 @@ config:
         #- sed -i -e 's/<active>false</active>/<active>true</active>/g' $CONFIG_PATHS_WEBROOT/app/etc/modules/Cm_RedisSession.xml
         - n98-magerun.phar dev:module:enable Cm_RedisSession
 
+    - title: "Setup turpentine if requested"
+      shell_condition: '"$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE"'
+      commands:
+        - composer.phar require connect20/nexcessnet_turpentine
+        - n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST"
+        - n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY"
+        - envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS
+        - n98-magerun.phar dev:module:enable Nexcessnet_Turpentine
+    
     - title: "End conf"
       commands:
+        - n98-magerun.phar index:reindex:all
         - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
         - echo "ready" > /tmp/container_status
-
 
 test:
   envvars:
