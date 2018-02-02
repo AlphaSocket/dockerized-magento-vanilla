@@ -50,8 +50,9 @@ if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
 fi
 # Setup turpentine if requested
 if [ "$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
+    TURPENTINE_SERVERLIST="$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP:$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT";
     composer.phar require connect20/nexcessnet_turpentine;
-    n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST";
+    n98-magerun.phar config:set turpentine_varnish/servers/server_list "$TURPENTINE_SERVERLIST";
     n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY";
     n98-magerun.phar dev:module:enable Nexcessnet_Turpentine;
 fi

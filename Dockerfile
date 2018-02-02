@@ -77,7 +77,6 @@ ENV \
 	CONFIG_TURPENTINE_BACKEND_PORT="8080" \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP="127.0.0.1" \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT="6082" \
-	CONFIG_TURPENTINE_SERVERLIST="127.0.0.1:6082" \
 	CONFIG_TURPENTINE_AUTH_KEY="" \
 	CONFIG_COMPOSER_INIT="yes"
 
@@ -90,14 +89,16 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517573202
-ADD bin/config /usr/local/bin/config/1517573202
-ADD imports/templates /usr/local/templates
+ADD bin/setup /usr/local/bin/setup/1517587059
+ADD bin/config /usr/local/bin/config/1517587059
+ADD imports/templates/redis.xml /usr/local/templates/redis.xml
+ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
+
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517573202 
+    /usr/local/bin/setup/1517587059 
 
 
 WORKDIR /var/www/html
