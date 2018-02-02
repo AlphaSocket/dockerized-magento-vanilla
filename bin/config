@@ -22,7 +22,7 @@ while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(
 if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env;
     $SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
-    rm /tmp/magento_vanilla_env;
+    rm -f /tmp/magento_vanilla_env;
 fi
 # Configure composer
 composer.phar config packagist.org false
