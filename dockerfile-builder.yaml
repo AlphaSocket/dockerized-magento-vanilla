@@ -149,7 +149,6 @@ config:
         control_panel:
           ip: 127.0.0.1
           port: 6082
-      serverlist: '$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP:$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT'
       auth_key: ""
     composer:
       init: "yes"
@@ -253,8 +252,9 @@ config:
     - title: "Setup turpentine if requested"
       shell_condition: '"$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE"'
       commands:
+        - TURPENTINE_SERVERLIST="$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP:$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT"
         - composer.phar require connect20/nexcessnet_turpentine
-        - n98-magerun.phar config:set turpentine_varnish/servers/server_list "$CONFIG_TURPENTINE_SERVERLIST"
+        - n98-magerun.phar config:set turpentine_varnish/servers/server_list "$TURPENTINE_SERVERLIST"
         - n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY"
         - n98-magerun.phar dev:module:enable Nexcessnet_Turpentine
     
