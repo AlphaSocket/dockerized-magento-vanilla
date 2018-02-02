@@ -55,7 +55,7 @@ setup:
         installer:
           version: 1.9.3.6
           url: https://github.com/OpenMage/magento-mirror/archive/${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}.zip
-          path: ~/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
+          path: /root/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
         sample_data:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
@@ -207,7 +207,7 @@ config:
         # Building env file
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
         # Magento installation
-        - "$SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
+        - "$CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
         # Cleaning env file
         - rm -f /tmp/magento_vanilla_env
         
