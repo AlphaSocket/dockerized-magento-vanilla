@@ -210,7 +210,7 @@ config:
         # Magento installation
         - "$SETUP_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
         # Cleaning env file
-        - rm /tmp/magento_vanilla_env
+        - rm -f /tmp/magento_vanilla_env
         
         
     - title: "Configure composer"
