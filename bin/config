@@ -25,7 +25,7 @@ if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     rm -f /tmp/magento_vanilla_env;
 fi
 # Configure composer
-composer.phar config packagist.org false
+composer.phar config repositories.packagist.org false
 composer.phar config repositories.firegento composer https://packages.firegento.com
 composer.phar config repositories.sf9 composer https://packages.sf9dev.com
 composer.phar require magento-hackathon/magento-composer-installer

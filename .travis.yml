@@ -32,8 +32,11 @@ script:
     fi
 # Testing magento installation
  - if [ "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
-        MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" );
-        MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success");
+        CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c 'cat /tmp/container_status'";
+        MAX_TRIES=300;
+        SECONDS_BETWEEN_TRIES=1;
+        c=0;
+        while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi; echo "Testing container readiness.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done && MAGENTO_INSTALLATION_REPORT_TEST="Success";
     fi
 # Echo failure
  - if [ ! "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success" ]; then
