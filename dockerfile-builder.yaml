@@ -54,9 +54,6 @@ setup:
       magento:
         installer:
           version: 1.9.3.6
-          url: https://github.com/OpenMage/magento-mirror/archive/${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}.zip
-          #path: /root/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
-          path: /tmp/_n98_magerun_download/a17931c1de9711a0ff9a9c9349b2f158.zip
         sample_data:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
@@ -66,10 +63,13 @@ setup:
   processes:
     - title: "Download cache"
       commands:
-        - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_INSTALLER_PATH})
-        - curl -o $SETUP_CACHE_MAGENTO_INSTALLER_PATH $SETUP_CACHE_MAGENTO_INSTALLER_URL
+        # Installer
+        - curl -o $CONFIG_PATHS_BINARIES/n98-magerun.phar $CONFIG_URLS_MAGERUN
+        - n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
+        - rm -rf /tmp/warmCache
+        # Sample data
         - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
-        - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL 
+        - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
 
 #
 # Config process run just before the entrypoint
