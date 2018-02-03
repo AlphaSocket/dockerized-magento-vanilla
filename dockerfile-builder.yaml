@@ -341,9 +341,9 @@ test:
         - c=0
         - while ! eval "$CONDITION"; 
           do 
-            if [ $c -ge ${MAX_TRIES} ]; then
-              echo "Magento installation failed, print logs and exiting\n"
-              docker logs $TEST_NAME
+            if [ $c -ge ${MAX_TRIES} ] || [ "$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)" != 'true' ]; then
+              echo "Magento installation failed, print logs and exiting\n";
+              docker logs $TEST_NAME;
               exit 1;
             else
               c=$(($c + 1));
