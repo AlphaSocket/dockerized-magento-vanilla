@@ -217,11 +217,13 @@ config:
     - title: "Configure composer"
       commands:
         #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER} # Alreay initialized in installation
-        - composer.phar config repositories.packagist.org false
         - composer.phar config repositories.firegento composer https://packages.firegento.com
-        #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
+        - composer.phar config extra.magento-root-dir "."
         - composer.phar require magento-hackathon/magento-composer-installer
         - composer.phar require firegento/debug
+        # Private repo and package
+        #- composer.phar config repositories.packagist.org false
+        #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
         #- composer.phar require studioforty9/toolbox
         
     
@@ -229,7 +231,7 @@ config:
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - if [ ! ls "$CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" ] || [ ! cat "CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" | unzip -ql - ]; then \
+        - if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION)" ] || [ -z "$(cat ${CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION} | unzip -ql - 2>/dev/null)" ]; then \
             curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
           fi
         # Extract
