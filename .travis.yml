@@ -36,16 +36,7 @@ script:
         MAX_TRIES=300;
         SECONDS_BETWEEN_TRIES=1;
         c=0;
-        while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi; echo "Testing container readiness.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done && MAGENTO_INSTALLATION_REPORT_TEST="Success";
-    fi
-# Echo failure
- - if [ ! "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success" ]; then
-        echo "Magento isntallation failed, print logs and exiting\n";
-        docker logs magento-vanilla;
-    fi
-# Echo success
- - if [ "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success" ]; then
-        echo "### Test Succeeded\n";
+        while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then echo "Magento installation failed, print logs and exiting\n" docker logs magento-vanilla exit 1; else c=$(($c + 1)); echo "Testing container readiness.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; fi; done && echo "### Test Succeeded\n";
     fi
 
 
