@@ -1,6 +1,6 @@
 sudo: false
 
-language: nix
+language: python
 
 cache:
     apt: true
