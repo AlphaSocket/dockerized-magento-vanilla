@@ -30,7 +30,6 @@ composer.phar config repositories.firegento composer https://packages.firegento.
 composer.phar config repositories.sf9 composer https://packages.sf9dev.com
 composer.phar require magento-hackathon/magento-composer-installer
 composer.phar require firegento/debug
-composer.phar require studioforty9/toolbox
 
 # Install magento sample data
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
