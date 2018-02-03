@@ -341,20 +341,14 @@ test:
         - c=0
         - while ! eval "$CONDITION"; 
           do 
-            if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi;
-            echo "Testing container readiness.. Try $c failed"; 
-            sleep ${SECONDS_BETWEEN_TRIES}; 
-          done && MAGENTO_INSTALLATION_REPORT_TEST="Success"
-    #
-    # Echo results
-    #
-    - title: "Echo failure"
-      shell_condition: '! "$MAGENTO_INSTALLATION_REPORT_TEST" = "Success"'
-      commands:
-        - echo "Magento isntallation failed, print logs and exiting\n"
-        - docker logs $TEST_NAME
-
-    - title: "Echo success"
-      shell_condition: '"$MAGENTO_INSTALLATION_REPORT_TEST" = "Success"'
-      commands:
-        - echo "### Test Succeeded\n" 
+            if [ $c -ge ${MAX_TRIES} ]; then
+              echo "Magento installation failed, print logs and exiting\n"
+              docker logs $TEST_NAME
+              exit 1;
+            else
+              c=$(($c + 1));
+              echo "Testing container readiness.. Try $c failed"; 
+              sleep ${SECONDS_BETWEEN_TRIES}; 
+            fi;
+          done && echo "### Test Succeeded\n"
+        
