@@ -55,7 +55,8 @@ setup:
         installer:
           version: 1.9.3.6
           url: https://github.com/OpenMage/magento-mirror/archive/${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}.zip
-          path: /root/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
+          #path: /root/.composer/cache/files/magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION}/c9778473d2ea69f4f1dd464ad616c5a9d6307a96.zip
+          path: /tmp/_n98_magerun_download/a17931c1de9711a0ff9a9c9349b2f158.zip
         sample_data:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
@@ -214,8 +215,8 @@ config:
         
     - title: "Configure composer"
       commands:
-        #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER}
-        - composer.phar config packagist.org false
+        #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER} # Alreay initialized in installation
+        - composer.phar config repositories.packagist.org false
         - composer.phar config repositories.firegento composer https://packages.firegento.com
         - composer.phar config repositories.sf9 composer https://packages.sf9dev.com
         - composer.phar require magento-hackathon/magento-composer-installer
@@ -331,9 +332,18 @@ test:
     - title: "Testing magento installation"
       shell_condition: '"$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
       commands:
-        - MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" )
-        - MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success")
-
+        #- MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" )
+        #- MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success")
+        - CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c 'cat /tmp/container_status'"
+        - MAX_TRIES=300
+        - SECONDS_BETWEEN_TRIES=1
+        - c=0
+        - while ! eval "$CONDITION"; 
+          do 
+            if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi;
+            echo "Testing container readiness.. Try $c failed"; 
+            sleep ${SECONDS_BETWEEN_TRIES}; 
+          done && MAGENTO_INSTALLATION_REPORT_TEST="Success"
     #
     # Echo results
     #
