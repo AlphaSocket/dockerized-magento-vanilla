@@ -25,14 +25,14 @@ if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     rm -f /tmp/magento_vanilla_env;
 fi
 # Configure composer
-composer.phar config repositories.packagist.org false
 composer.phar config repositories.firegento composer https://packages.firegento.com
+composer.phar config extra.magento-root-dir "."
 composer.phar require magento-hackathon/magento-composer-installer
 composer.phar require firegento/debug
 
 # Install magento sample data
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    if [ ! ls "$CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" ] || [ ! cat "CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION" | unzip -ql - ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
+    if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION)" ] || [ -z "$(cat ${CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION} | unzip -ql - 2>/dev/null)" ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
     cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -;
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/";
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/";
