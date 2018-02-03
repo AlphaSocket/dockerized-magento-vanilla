@@ -219,7 +219,7 @@ config:
         #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER} # Alreay initialized in installation
         - composer.phar config repositories.packagist.org false
         - composer.phar config repositories.firegento composer https://packages.firegento.com
-        - composer.phar config repositories.sf9 composer https://packages.sf9dev.com
+        #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
         - composer.phar require magento-hackathon/magento-composer-installer
         - composer.phar require firegento/debug
         #- composer.phar require studioforty9/toolbox
