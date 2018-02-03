@@ -5,8 +5,9 @@
 set -e
 
 # Download cache
-mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_INSTALLER_PATH})
-curl -o $SETUP_CACHE_MAGENTO_INSTALLER_PATH $SETUP_CACHE_MAGENTO_INSTALLER_URL
+curl -o $CONFIG_PATHS_BINARIES/n98-magerun.phar $CONFIG_URLS_MAGERUN
+n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
+rm -rf /tmp/warmCache
 mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
 curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
 

@@ -23,8 +23,6 @@ ENV \
 	SETUP_DEPENDENCIES_SETUP="" \
 	SETUP_DEPENDENCIES_CONFIG="" \
 	SETUP_CACHE_MAGENTO_INSTALLER_VERSION="1.9.3.6" \
-	SETUP_CACHE_MAGENTO_INSTALLER_URL="https://github.com/OpenMage/magento-mirror/archive/1.9.3.6.zip" \
-	SETUP_CACHE_MAGENTO_INSTALLER_PATH="/tmp/_n98_magerun_download/a17931c1de9711a0ff9a9c9349b2f158.zip" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION="1.9.2.4" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.2.4/magento-sample-data-1.9.2.4.zip" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH="/tmp/magento-sample-data-1.9.2.4.zip" \
@@ -89,8 +87,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
     fi
 
 ADD bin/docker-config /usr/local/bin/docker-config
-ADD bin/setup /usr/local/bin/setup/1517672754
-ADD bin/config /usr/local/bin/config/1517672754
+ADD bin/setup /usr/local/bin/setup/1517674739
+ADD bin/config /usr/local/bin/config/1517674739
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -98,7 +96,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1517672754 
+    /usr/local/bin/setup/1517674739 
 
 
 WORKDIR /var/www/html
