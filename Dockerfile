@@ -35,7 +35,7 @@ ENV \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION="1.9.2.4" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.2.4/magento-sample-data-1.9.2.4.zip" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH="/tmp/magento-sample-data-1.9.2.4.zip" \
-	SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_1924_MD5="ddb2103137e257006e30b66122caa999  magento-sample-data-1.9.2.4.zip" \
+	SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_1924_MD5="ddb2103137e257006e30b66122caa999" \
 	CONFIG_PROJECT_CODENAME="vanilla" \
 	CONFIG_PROJECT_DESCRIPTION="Magento Vanilla" \
 	CONFIG_USER="magento-vanilla" \
@@ -98,8 +98,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
 
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
-ADD imports/bin/setup /usr/local/bin/setup/1518374640
-ADD imports/bin/config /usr/local/bin/config/1518374640
+ADD imports/bin/setup /usr/local/bin/setup/1518374902
+ADD imports/bin/config /usr/local/bin/config/1518374902
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -107,7 +107,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518374640 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518374902 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 80 
 WORKDIR /var/www/html
