@@ -2,7 +2,7 @@
 #
 # Run command
 #
-set -xe
+set -e
 
 echo "### Start container configuration\n"
 $(which docker-config)

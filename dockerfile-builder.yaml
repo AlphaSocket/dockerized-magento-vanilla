@@ -196,6 +196,11 @@ config:
         # Cleaning env file
         - rm -f /tmp/magento_vanilla_env
         
+    - title: "End magento installation routine"
+      commands:
+        - n98-magerun.phar sys:setup:incremental -n
+        - n98-magerun.phar index:reindex:all
+        - n98-magerun.phar cache:clean
         
     - title: "Configure composer"
       commands:
@@ -209,7 +214,6 @@ config:
         #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
         #- composer.phar require studioforty9/toolbox
         
-    
     - title: "Install magento sample data"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:

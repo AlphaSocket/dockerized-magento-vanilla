@@ -28,6 +28,12 @@ if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
     $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
     rm -f /tmp/magento_vanilla_env;
 fi
+# End magento installation routine
+echo "### End magento installation routine..."
+n98-magerun.phar sys:setup:incremental -n
+n98-magerun.phar index:reindex:all
+n98-magerun.phar cache:clean
+
 # Configure composer
 echo "### Configure composer..."
 composer.phar config repositories.firegento composer https://packages.firegento.com
