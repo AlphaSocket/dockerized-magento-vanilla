@@ -95,6 +95,14 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
         mkdir -p /usr/local/bin/config; \
     fi
 
+ADD imports/bin/docker-config /usr/local/bin/docker-config
+ADD imports/bin/docker-run /usr/local/bin/docker-run
+ADD imports/bin/setup /usr/local/bin/setup/1518359769
+ADD imports/bin/config /usr/local/bin/config/1518359769
+ADD imports/bin/docker-config /usr/local/bin/docker-config
+ADD imports/bin/docker-run /usr/local/bin/docker-run
+ADD imports/bin/setup /usr/local/bin/setup/1518359769
+ADD imports/bin/config /usr/local/bin/config/1518359769
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -102,7 +110,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518359167 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518359769 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 80 
 WORKDIR /var/www/html
