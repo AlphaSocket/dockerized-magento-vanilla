@@ -22,7 +22,7 @@ CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPL
 # Check sample data md5
 echo "### Check sample data md5..."
 if [ "$SUM" != "$CHECKSUM" ]; then
-    OrderedDict([('echo "### Sample data download failed', '$SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "')]);
+    echo "### Sample data download failed $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL ";
     exit 1;
 fi
 
