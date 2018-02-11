@@ -30,9 +30,8 @@ if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
 fi
 # End magento installation routine
 echo "### End magento installation routine..."
-n98-magerun.phar sys:setup:incremental -n
-n98-magerun.phar index:reindex:all
 n98-magerun.phar cache:clean
+n98-magerun.phar sys:setup:incremental -n
 
 # Configure composer
 echo "### Configure composer..."
@@ -70,10 +69,12 @@ if [ "$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
 fi
 # End conf
 echo "### End conf..."
+php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index'));"
 n98-magerun.phar sys:setup:incremental -n
 n98-magerun.phar index:reindex:all
 n98-magerun.phar cache:clean
 n98-magerun.phar sys:check
+echo "### Magento is ready"
 echo "ready" > /tmp/container_status
 
 
