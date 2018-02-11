@@ -32,7 +32,7 @@ setup:
     cache:
       magento:
         installer:
-          version: 1.9.3.7
+          version: 1.9.3.6
         sample_data:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
@@ -45,11 +45,11 @@ setup:
         # Installer
         - n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
         - composer.phar init -n --working-dir=/tmp/warmCache # Alreay initialized in installation
-        - composer.phar config repositories.firegento composer https://packages.firegento.com
-        - composer.phar config extra.magento-root-dir "/tmp/warmCache"
-        - composer.phar require magento-hackathon/magento-composer-installer
-        - composer.phar require firegento/debug
-        - composer.phar require connect20/nexcessnet_turpentine
+        - composer.phar config -d=/tmp/warmCache repositories.firegento composer https://packages.firegento.com
+        - composer.phar config -d=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache"
+        - composer.phar require -d=/tmp/warmCache magento-hackathon/magento-composer-installer
+        - composer.phar require -d=/tmp/warmCache firegento/debug
+        - composer.phar require -d=/tmp/warmCache connect20/nexcessnet_turpentine
         - rm -rf /tmp/warmCache
         # Sample data
         - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
