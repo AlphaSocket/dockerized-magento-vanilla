@@ -48,8 +48,8 @@ setup:
     - title: "Warming composer and n98 cache for config process"
       commands:
         # Caching Installer
-        - mkdir /tmp/warmCache
         - n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
+        - mkdir /tmp/warmCache
         - echo '{"require":{}}' > /tmp/warmCache/composer.json
         - composer.phar config --working-dir=/tmp/warmCache repositories.firegento composer https://packages.firegento.com
         - composer.phar config --working-dir=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache"
