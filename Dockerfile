@@ -31,7 +31,7 @@ ENV \
 	BUILD_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
 	SETUP_DEPENDENCIES_SETUP="" \
 	SETUP_DEPENDENCIES_CONFIG="" \
-	SETUP_CACHE_MAGENTO_INSTALLER_VERSION="1.9.3.7" \
+	SETUP_CACHE_MAGENTO_INSTALLER_VERSION="1.9.3.6" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION="1.9.2.4" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH="/tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip" \
@@ -97,8 +97,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
 
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
-ADD imports/bin/setup /usr/local/bin/setup/1518359953
-ADD imports/bin/config /usr/local/bin/config/1518359953
+ADD imports/bin/setup /usr/local/bin/setup/1518360541
+ADD imports/bin/config /usr/local/bin/config/1518360541
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -106,7 +106,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518359953 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518360541 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 80 
 WORKDIR /var/www/html
