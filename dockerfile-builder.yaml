@@ -220,9 +220,8 @@ config:
         
     - title: "End magento installation routine"
       commands:
-        - n98-magerun.phar sys:setup:incremental -n
-        - n98-magerun.phar index:reindex:all
         - n98-magerun.phar cache:clean
+        - n98-magerun.phar sys:setup:incremental -n
         
     - title: "Configure composer"
       commands:
@@ -273,10 +272,13 @@ config:
     
     - title: "End conf"
       commands:
+        # Warm cache
+        - php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index'));"
         - n98-magerun.phar sys:setup:incremental -n
         - n98-magerun.phar index:reindex:all
         - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
+        - echo "### Magento is ready"
         - echo "ready" > /tmp/container_status
 
 test:
