@@ -23,7 +23,9 @@ CHECKSUM=$(echo \$$CHECKSUM_VAR_NAME | eval )
 # Check sample data md5
 echo "### Check sample data md5..."
 if [ "$SUM" != "$CHECKSUM" ]; then
-    echo "### Sample data download failed $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL ";
+    echo "### Sample data download failed\:";
+    OrderedDict([('echo "Url\\', '$SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "')]);
+    OrderedDict([('echo "Checksum\\', '$SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "')]);
     exit 1;
 fi
 

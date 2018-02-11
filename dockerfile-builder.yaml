@@ -35,8 +35,10 @@ setup:
           version: 1.9.3.6
         sample_data:
           version: 1.9.2.4
-          url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
-          path: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
+          url:
+            valueFromParse: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
+          path:
+            valueFromParse: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
           checksum:
             1_9_2_4:
               md5: ddb2103137e257006e30b66122caa999
@@ -64,7 +66,9 @@ setup:
     - title: "Check sample data md5"
       shell_condition: '"$SUM" != "$CHECKSUM"'
       commands:
-        - echo "### Sample data download failed $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
+        - echo "### Sample data download failed\:"
+        - echo "Url\: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
+        - echo "Checksum\: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
         - exit 1
         
 
