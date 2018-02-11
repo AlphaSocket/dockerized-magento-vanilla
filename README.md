@@ -13,6 +13,8 @@ Magento vanilla container
 
 
 ## Packages installed
+- Config dependencies:
+  + gettext
 
 
 ## Configurable envvars
