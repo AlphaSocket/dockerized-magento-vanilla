@@ -11,47 +11,17 @@ addons:
             - curl
             - libfcgi0ldbl
 
+
+
 services:
   - docker
 
 before_install:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" $DOCKER_REGISTER;
-  - docker build 
-        --no-cache 
-        -t 03192859189254/magento-vanilla:latest
-        --build-arg BUILD_COMMIT=`git rev-parse --short HEAD` 
-        --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` .
 
 script:
-# Starting pause container
- - TEST_CONTAINER_PAUSE_ID=$( docker run -d --name=magento-vanilla-pause-tester 03192859189254/dockerized-nginx-tester:latest )
- - TEST_CONTAINER_PAUSE_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_PAUSE_ID)
-
-# Starting DB container
- - TEST_CONTAINER_DB_ID=$( docker run -d --name=magento-vanilla-mariadb-tester --net=container:magento-vanilla-pause-tester -e MYSQL_DATABASE=magento_test -e MYSQL_USER=magento -e MYSQL_PASSWORD=vanillaPass -e MYSQL_ROOT_PASSWORD=root mariadb:latest )
- - TEST_CONTAINER_DB_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_DB_ID)
-
-# Starting magento-cli container
- - TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla --net=container:magento-vanilla-pause-tester -e CONFIG_DB_NAME=magento_test -e CONFIG_DB_USER=magento -e CONFIG_DB_PASS=vanillaPass 03192859189254/magento-vanilla:latest )
- - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
-
-# Testing magento-cli container
- - if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
-        echo "Magento-cli container failed, print logs and exiting\n";
-        docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
-    fi
-# Testing magento installation
- - if [ "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
-        CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c 'cat /tmp/container_status'";
-        MAX_TRIES=300;
-        SECONDS_BETWEEN_TRIES=1;
-        c=0;
-        while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ] || [ "$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)" != 'true' ]; then echo "Magento installation failed, print logs and exiting\n"; docker logs magento-vanilla; exit 1; else c=$(($c + 1)); echo "Testing container readiness.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; fi; done && echo "### Test Succeeded\n";
-    fi
-
+    - bin/build
+    - bin/test
 
 after_success:
-  - if [ "$DOCKER_USERNAME" ]; then
-        docker tag 03192859189254/magento-vanilla:latest ${DOCKER_REGISTER}/${DOCKER_USERNAME}/magento-vanilla:latest;
-        docker push ${DOCKER_REGISTER}/${DOCKER_USERNAME}/magento-vanilla:latest;
-    fi
+  - bin/push

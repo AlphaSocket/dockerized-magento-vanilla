@@ -4,40 +4,19 @@ project:
   description: Magento vanilla container
 
 #
-# Init builder
-#
-general:
-  envvars:
-    docker:
-      user: &general_docker_user 03192859189254
-      registry: docker.io
-    keys:
-      True: "True"
-      false: "False"
-      dev: "dev"
-      prd: "prd"
-    
-#
 # Build process
 # Creates dockerfile and file used in it
 #
 build:
   envvars:
     name: *project_codename
-    branch:
-      valueFromCommand: 'git rev-parse --abbrev-ref HEAD'
-    version:
-      valueFromCommand: 'echo $BUILD_BRANCH | cut -d \- -f 1'
-    env:
-      valueFromCommand: 'env=$(echo $BUILD_BRANCH | cut -d \- -f 2); [ "$env" = "$BUILD_VERSION" ] && echo $GENERAL_KEYS_PRD || echo $env'
     # Docker
-    dockerfile:
-      image: docker.io/alphasocket/magento-cli-alpine:latest
-      workdir: /var/www/html
-      cmd: /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL
-  import:
-    - "imports/templates:/usr/local/templates"
-    - "imports/mage_install_env:/usr/local/mage_install_env"
+    from: docker.io/alphasocket/magento-cli-alpine:latest
+    workdir: /var/www/html
+    cmd: /usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL
+  imports:
+    - "templates:/usr/local/templates"
+    - "mage_install_env:/usr/local/mage_install_env"
 
 #
 # Setup process injected in dockerfile
@@ -53,7 +32,7 @@ setup:
     cache:
       magento:
         installer:
-          version: 1.9.3.6
+          version: 1.9.3.7
         sample_data:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
@@ -61,10 +40,16 @@ setup:
       
   # Setup Processes
   processes:
-    - title: "Download cache"
+    - title: "Warming composer and n98 cache for config process"
       commands:
         # Installer
         - n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
+        - composer.phar init -n --working-dir=/tmp/warmCache # Alreay initialized in installation
+        - composer.phar config repositories.firegento composer https://packages.firegento.com
+        - composer.phar config extra.magento-root-dir "/tmp/warmCache"
+        - composer.phar require magento-hackathon/magento-composer-installer
+        - composer.phar require firegento/debug
+        - composer.phar require connect20/nexcessnet_turpentine
         - rm -rf /tmp/warmCache
         # Sample data
         - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
@@ -262,6 +247,7 @@ config:
     
     - title: "End conf"
       commands:
+        - n98-magerun.phar sys:setup:incremental -n
         - n98-magerun.phar index:reindex:all
         - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
@@ -269,19 +255,12 @@ config:
 
 test:
   envvars:
-    name: $BUILD_NAME
-    port: 30080
     db:
       name: magento_test
       user: magento
       pass: vanillaPass
       root:
         pass: root
-    dockerfile:
-      tag: 
-        user: *general_docker_user
-        name: $BUILD_NAME
-        version: $BUILD_BRANCH
 
   processes:
     #
@@ -291,18 +270,17 @@ test:
       commands:
         - TEST_CONTAINER_PAUSE_ID=$(
             docker run 
-              -d --name=${TEST_NAME}-pause-tester
+              -d --name=${TEST_CONTAINER_NAME}-pause-tester
               03192859189254/dockerized-nginx-tester:latest
           )
         - TEST_CONTAINER_PAUSE_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_PAUSE_ID)
-
 
     - title: "Starting DB container"
       commands:
         - TEST_CONTAINER_DB_ID=$(
             docker run 
-              -d --name=${TEST_NAME}-mariadb-tester
-              --net=container:${TEST_NAME}-pause-tester
+              -d --name=${TEST_CONTAINER_NAME}-mariadb-tester
+              --net=container:${TEST_CONTAINER_NAME}-pause-tester
               -e MYSQL_DATABASE=$TEST_DB_NAME
               -e MYSQL_USER=$TEST_DB_USER
               -e MYSQL_PASSWORD=$TEST_DB_PASS
@@ -315,20 +293,22 @@ test:
       commands:
         - TEST_CONTAINER_MAGENTO_CLI_ID=$(
             docker run 
-              -d --name=$TEST_NAME
-              --net=container:${TEST_NAME}-pause-tester
+              -d --name=$TEST_CONTAINER_NAME
+              --net=container:${TEST_CONTAINER_NAME}-pause-tester
               -e CONFIG_DB_NAME=$TEST_DB_NAME
               -e CONFIG_DB_USER=$TEST_DB_USER
               -e CONFIG_DB_PASS=$TEST_DB_PASS
-              ${TEST_DOCKERFILE_TAG_USER}/${TEST_DOCKERFILE_TAG_NAME}:${TEST_DOCKERFILE_TAG_VERSION}
+              ${BUILD_USER}/${BUILD_NAME}:${BUILD_VERSION}
           )
         - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
     - title: "Testing magento-cli container"
       shell_condition: '! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
       commands:
-        - echo "Magento-cli container failed, print logs and exiting\n"
+        - echo "### Magento-cli container failed, print logs and exiting"
         - docker logs $TEST_CONTAINER_MAGENTO_CLI_ID
+      else:
+        - echo "### Magento-cli is running"
 
     - title: "Testing magento installation"
       shell_condition: '"$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
@@ -343,7 +323,7 @@ test:
           do 
             if [ $c -ge ${MAX_TRIES} ] || [ "$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)" != 'true' ]; then
               echo "Magento installation failed, print logs and exiting\n";
-              docker logs $TEST_NAME;
+              docker logs $TEST_CONTAINER_NAME;
               exit 1;
             else
               c=$(($c + 1));

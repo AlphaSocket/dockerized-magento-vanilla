@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+
+# exit if a command fails
+set -e
+
+# Warming composer and n98 cache for config process
+echo "### Warming composer and n98 cache for config process..."
+n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
+composer.phar init -n --working-dir=/tmp/warmCache
+composer.phar config repositories.firegento composer https://packages.firegento.com
+composer.phar config extra.magento-root-dir "/tmp/warmCache"
+composer.phar require magento-hackathon/magento-composer-installer
+composer.phar require firegento/debug
+composer.phar require connect20/nexcessnet_turpentine
+rm -rf /tmp/warmCache
+mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
+curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
+
+
+
+exit 0

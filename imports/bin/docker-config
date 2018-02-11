@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Run all confiugration scripts
+# Run all configuration scripts
 #
 set -e
 
