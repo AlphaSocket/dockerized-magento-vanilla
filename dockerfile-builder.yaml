@@ -281,6 +281,8 @@ config:
 
 test:
   envvars:
+    redis:
+      pass: redisPass
     db:
       name: magento_test
       user: magento
@@ -299,7 +301,6 @@ test:
               -d --name=${TEST_CONTAINER_NAME}-pause-tester
               03192859189254/dockerized-nginx-tester:latest
           )
-        - TEST_CONTAINER_PAUSE_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_PAUSE_ID)
 
     - title: "Starting DB container"
       commands:
@@ -313,7 +314,16 @@ test:
               -e MYSQL_ROOT_PASSWORD=$TEST_DB_ROOT_PASS
               mariadb:latest
           )
-        - TEST_CONTAINER_DB_STATUS=$(sleep 5 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_DB_ID)
+
+    - title: "Starting redis container"
+      commands:
+        - TEST_CONTAINER_REDIS_ID=$(
+            docker run 
+              -d --name=${TEST_CONTAINER_NAME}-redis-tester
+              --net=container:${TEST_CONTAINER_NAME}-pause-tester
+              -e CONFIG_REDIS_PASS=$TEST_REDIS_PASS
+              docker.io/alphasocket/redis-alpine:latest
+          )
 
     - title: "Starting magento-cli container"
       commands:
@@ -324,9 +334,11 @@ test:
               -e CONFIG_DB_NAME=$TEST_DB_NAME
               -e CONFIG_DB_USER=$TEST_DB_USER
               -e CONFIG_DB_PASS=$TEST_DB_PASS
+              -e CONFIG_REDIS_HOST=127.0.0.1
+              -e CONFIG_REDIS_PASS=$TEST_REDIS_PASS
               ${BUILD_USER}/${BUILD_NAME}:${BUILD_VERSION}
           )
-        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 10 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 1 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
     - title: "Testing magento-cli container"
       shell_condition: '! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
