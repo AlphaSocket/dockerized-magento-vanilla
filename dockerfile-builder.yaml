@@ -261,11 +261,6 @@ test:
       pass: vanillaPass
       root:
         pass: root
-    dockerfile:
-      tag: 
-        user: *general_docker_user
-        name: $BUILD_NAME
-        version: $BUILD_BRANCH
 
   processes:
     #
