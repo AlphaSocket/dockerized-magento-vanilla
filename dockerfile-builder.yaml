@@ -61,6 +61,7 @@ setup:
         - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
         - SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH)
         - CHECKSUM_VAR_NAME=$( echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\./_/g' )
+        - echo "$CHECKSUM_VAR_NAME"
         - CHECKSUM=$(echo \$$CHECKSUM_VAR_NAME | eval )
     
     - title: "Check sample data md5"
