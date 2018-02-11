@@ -11,7 +11,7 @@ project_name="$CONFIG_PROJECT_CODENAME"
 project_description="$CONFIG_PROJECT_DESCRIPTION"
 # Installation
 installation_folder="$CONFIG_MAGENTO_INSTALL_FOLDER"
-magento_version_by_name="$CONFIG_MAGENTO_VERSION"
+magento_version_by_name="magento-mirror-$CONFIG_MAGENTO_VERSION"
 locale="$CONFIG_MAGENTO_LOCALE"
 timezone="$CONFIG_MAGENTO_TIMEZONE"
 default_currency="$CONFIG_MAGENTO_DEFAULT_CURRENCY"

@@ -42,16 +42,16 @@ ENV \
 	CONFIG_GROUP="magento" \
 	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
 	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
-	CONFIG_SAMPLE_DATA_VERSION="$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" \
-	CONFIG_SAMPLE_DATA_INSTALL="False" \
+	CONFIG_SAMPLE_DATA_VERSION="1.9.2.4" \
+	CONFIG_SAMPLE_DATA_INSTALL="True" \
 	CONFIG_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip" \
-	CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION="/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip" \
+	CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION="/tmp/magento-sample-data-1.9.2.4.zip" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
 	CONFIG_ADMIN_FIRSTNAME="Admin" \
 	CONFIG_ADMIN_EMAIL="jhon@doe.ie" \
 	CONFIG_ADMIN_PASS="password.123" \
-	CONFIG_MAGENTO_VERSION="magento-mirror-1.9.3.6" \
+	CONFIG_MAGENTO_VERSION="1.9.3.6" \
 	CONFIG_MAGENTO_USER="$CONFIG_USER" \
 	CONFIG_MAGENTO_GROUP="$CONFIG_GROUP" \
 	CONFIG_MAGENTO_URL="http://www.magento.vanilla/" \
@@ -77,10 +77,10 @@ ENV \
 	CONFIG_DB_USER="root" \
 	CONFIG_DB_PASS="root" \
 	CONFIG_DB_PREFIX="" \
-	CONFIG_REDIS_ENABLED="$GENERAL_KEYS_FALSE" \
+	CONFIG_REDIS_ENABLED="$GENERAL_KEYS_TRUE" \
 	CONFIG_REDIS_HOST="127.0.0.1" \
 	CONFIG_REDIS_PORT="6379" \
-	CONFIG_TURPENTINE_ENABLED="$GENERAL_KEYS_FALSE" \
+	CONFIG_TURPENTINE_ENABLED="$GENERAL_KEYS_TRUE" \
 	CONFIG_TURPENTINE_BACKEND_IP="127.0.0.1" \
 	CONFIG_TURPENTINE_BACKEND_PORT="8080" \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP="127.0.0.1" \
@@ -98,8 +98,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
 
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
-ADD imports/bin/setup /usr/local/bin/setup/1518374902
-ADD imports/bin/config /usr/local/bin/config/1518374902
+ADD imports/bin/setup /usr/local/bin/setup/1518383150
+ADD imports/bin/config /usr/local/bin/config/1518383150
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -107,7 +107,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518374902 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518383150 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 80 
 WORKDIR /var/www/html
