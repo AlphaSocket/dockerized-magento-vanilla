@@ -25,7 +25,8 @@ echo "### Check sample data md5..."
 if [ "$SUM" != "$CHECKSUM" ]; then
     echo "### Sample data download failed";
     echo "Url $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL ";
-    echo "Checksum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL ";
+    echo "Sum $SUM ";
+    echo "Checksum $CHECKSUM ";
     exit 1;
 fi
 

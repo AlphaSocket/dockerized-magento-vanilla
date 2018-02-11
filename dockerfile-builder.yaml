@@ -41,7 +41,7 @@ setup:
             valueFromParse: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
           checksum:
             1_9_2_4:
-              md5: ddb2103137e257006e30b66122caa999
+              md5: "ddb2103137e257006e30b66122caa999  magento-sample-data-1.9.2.4.zip"
       
   # Setup Processes
   processes:
@@ -68,7 +68,8 @@ setup:
       commands:
         - echo "### Sample data download failed"
         - echo "Url $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
-        - echo "Checksum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
+        - echo "Sum $SUM "
+        - echo "Checksum $CHECKSUM "
         - exit 1
         
 
