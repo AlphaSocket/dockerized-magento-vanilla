@@ -37,6 +37,9 @@ setup:
           version: 1.9.2.4
           url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
           path: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
+          checksum:
+            1.9.2.4:
+              md5: ddb2103137e257006e30b66122caa999
       
   # Setup Processes
   processes:
@@ -54,6 +57,15 @@ setup:
         # Sample data
         - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
         - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
+        - SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH)
+        - CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5}"
+    
+    - title: "Check sample data md5"
+      shell_condition: '"$SUM" != "$CHECKSUM"'
+      commands:
+        - echo "### Sample data download failed: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "
+        - exit 1
+        
 
 #
 # Config process run just before the entrypoint
@@ -142,7 +154,7 @@ config:
     - title: "Install mage-install script "
       commands:
         - mkdir -p $( dirname ${CONFIG_MAGENTO_INSTALL_SCRIPT_PATH})
-        - curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL 
+        - curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL
         - chmod +x $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH
     
     - title: "Clean installation folder"
@@ -218,7 +230,7 @@ config:
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION)" ] || [ -z "$(cat ${CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION} | unzip -ql - 2>/dev/null)" ]; then \
+        - if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION) 2>/dev/null" ]; then \
             curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
           fi
         # Extract

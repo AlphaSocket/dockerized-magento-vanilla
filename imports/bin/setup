@@ -16,7 +16,15 @@ composer.phar require -d=/tmp/warmCache connect20/nexcessnet_turpentine
 rm -rf /tmp/warmCache
 mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
 curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
+SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH)
+CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5}"
 
+# Check sample data md5
+echo "### Check sample data md5..."
+if [ "$SUM" != "$CHECKSUM" ]; then
+    OrderedDict([('echo "### Sample data download failed', '$SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL "')]);
+    exit 1;
+fi
 
 
 exit 0

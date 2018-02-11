@@ -44,7 +44,7 @@ composer.phar require firegento/debug
 # Install magento sample data
 echo "### Install magento sample data..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION)" ] || [ -z "$(cat ${CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION} | unzip -ql - 2>/dev/null)" ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
+    if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION) 2>/dev/null" ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
     cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -;
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/";
     cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/";
