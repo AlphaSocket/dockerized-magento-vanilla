@@ -6,20 +6,20 @@ set -e
 
 # Warming composer and n98 cache for config process
 echo "### Warming composer and n98 cache for config process..."
+mkdir /tmp/warmCache
 n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
-composer.phar init -n --working-dir=/tmp/warmCache
-composer.phar config -d=/tmp/warmCache repositories.firegento composer https://packages.firegento.com
-composer.phar config -d=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache"
-composer.phar require -d=/tmp/warmCache magento-hackathon/magento-composer-installer
-composer.phar require -d=/tmp/warmCache firegento/debug
-composer.phar require -d=/tmp/warmCache connect20/nexcessnet_turpentine
+echo '{"require":{}}' > /tmp/warmCache/composer.json
+composer.phar config --working-dir=/tmp/warmCache repositories.firegento composer https://packages.firegento.com
+composer.phar config --working-dir=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache"
+composer.phar require --working-dir=/tmp/warmCache magento-hackathon/magento-composer-installer
+composer.phar require --working-dir=/tmp/warmCache firegento/debug
+composer.phar require --working-dir=/tmp/warmCache connect20/nexcessnet_turpentine
 rm -rf /tmp/warmCache
 mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
 curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
 SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH)
-CHECKSUM_VAR_NAME=$( echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\./_/g' )
-echo "$CHECKSUM_VAR_NAME"
-CHECKSUM=$(echo \$$CHECKSUM_VAR_NAME | eval )
+CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\./_/g')
+CHECKSUM="$(eval $( echo \$$CHECKSUM_VAR_NAME) )"
 
 # Check sample data md5
 echo "### Check sample data md5..."
