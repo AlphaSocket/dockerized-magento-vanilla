@@ -88,15 +88,18 @@ config:
       templates:
         redis: /usr/local/templates/redis.xml
       config:
-        redis: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
+        redis:
+          valueFromParse: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
     
     sample:
       data:
-        version: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
-        install: False
+        version:
+          valueFromParse: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
+        install: True
         url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
         archive:
-          location: /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
+          location:
+            valueFromParse: /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
     admin:
       username: "admin"
       lastname: "Admin"
@@ -105,7 +108,8 @@ config:
       pass: "password.123"     
 
     magento:
-      version: "magento-mirror-1.9.3.6"
+      version:
+        valueFromParse: $SETUP_CACHE_MAGENTO_INSTALLER_VERSION
       user: $CONFIG_USER
       group: $CONFIG_GROUP
       url: "http://www.magento.vanilla/"
@@ -141,11 +145,11 @@ config:
       pass: "root"
       prefix: ""
     redis:
-      enabled: $GENERAL_KEYS_FALSE
+      enabled: $GENERAL_KEYS_TRUE
       host: 127.0.0.1
       port: 6379
     turpentine:
-      enabled: $GENERAL_KEYS_FALSE
+      enabled: $GENERAL_KEYS_TRUE
       backend:
         ip: 127.0.0.1
         port: 8080
