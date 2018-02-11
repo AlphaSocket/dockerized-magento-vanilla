@@ -40,7 +40,7 @@ setup:
           path:
             valueFromParse: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
           checksum:
-            1_9_2_4:
+            1924:
               md5: "ddb2103137e257006e30b66122caa999  magento-sample-data-1.9.2.4.zip"
       
   # Setup Processes
@@ -61,7 +61,7 @@ setup:
         - mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
         - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
         - SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH)
-        - CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\./_/g')
+        - CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\.//g')
         - CHECKSUM="$(eval $( echo \$$CHECKSUM_VAR_NAME) )"
     
     - title: "Check sample data md5"
