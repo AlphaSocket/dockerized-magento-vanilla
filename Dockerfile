@@ -81,9 +81,9 @@ ENV \
 	CONFIG_REDIS_HOST="127.0.0.1" \
 	CONFIG_REDIS_PORT="6379" \
 	CONFIG_TURPENTINE_ENABLED="$GENERAL_KEYS_TRUE" \
-	CONFIG_TURPENTINE_BACKEND_IP="127.0.0.1" \
+	CONFIG_TURPENTINE_BACKEND_HOST="127.0.0.1" \
 	CONFIG_TURPENTINE_BACKEND_PORT="8080" \
-	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_IP="127.0.0.1" \
+	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_HOST="127.0.0.1" \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT="6082" \
 	CONFIG_TURPENTINE_AUTH_KEY="" \
 	CONFIG_COMPOSER_INIT="yes"
@@ -98,8 +98,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
 
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
-ADD imports/bin/setup /usr/local/bin/setup/1518393187
-ADD imports/bin/config /usr/local/bin/config/1518393187
+ADD imports/bin/setup /usr/local/bin/setup/1518394161
+ADD imports/bin/config /usr/local/bin/config/1518394161
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -107,7 +107,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518393187 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518394161 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 80 
 WORKDIR /var/www/html
