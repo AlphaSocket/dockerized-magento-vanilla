@@ -218,10 +218,11 @@ config:
         # Cleaning env file
         - rm -f /tmp/magento_vanilla_env
         
-    - title: "End magento installation routine"
-      commands:
-        - n98-magerun.phar cache:clean
-        - n98-magerun.phar sys:setup:incremental -n
+    #- title: "End magento installation routine"
+    #  commands:
+    #    - n98-magerun.phar cache:enable
+    #    - n98-magerun.phar sys:setup:incremental -n
+    #    - n98-magerun.phar cache:clean
         
     - title: "Configure composer"
       commands:
@@ -275,9 +276,10 @@ config:
     - title: "End conf"
       commands:
         # Warm cache
-        - php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index'));"
+        - n98-magerun.phar cache:enable
         - n98-magerun.phar sys:setup:incremental -n
         - n98-magerun.phar index:reindex:all
+        - php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index'));"
         - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
         - echo "### Magento is ready"
