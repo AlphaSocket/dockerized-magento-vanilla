@@ -4,6 +4,11 @@
 # exit if a command fails
 set -e
 
+# Install dependencies
+echo "### Install dependencies..."
+if [ ! -z "$SETUP_DEPENDENCIES_CONFIG$SETUP_DEPENDENCIES_SETUP" ]; then
+    apk add --no-cache $SETUP_DEPENDENCIES_CONFIG $SETUP_DEPENDENCIES_SETUP;
+fi
 # Warming composer and n98 cache for config process
 echo "### Warming composer and n98 cache for config process..."
 n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
