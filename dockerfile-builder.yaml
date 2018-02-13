@@ -184,6 +184,12 @@ config:
             sleep ${SECONDS_BETWEEN_TRIES}; 
           done
           
+    - title: "Removing old magento installation data"
+      commands:
+        # Cleaning folder and DB
+        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
+        - echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_DB_NAME}\`;" | mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}
+      
     - title: "Install magento sample data"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
@@ -201,9 +207,6 @@ config:
     - title: "Install magento"
       shell_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
-        # Cleaning folder
-        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
-        
         # Building env file
         #- envsubst < /usr/local/templates/.n98-magerun.yaml > ~/.n98-magerun.yaml
         #- if [ "${CONFIG_MAGENTO_DEVELOPER_MODE}" = 'yes' ] ; then DEVELOPER_MODE='--developer-mode'; fi
@@ -231,7 +234,7 @@ config:
         # Building env file
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
         # Magento installation
-        - "$CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
+        - $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr
         # Removing env file
         - rm -f /tmp/magento_vanilla_env
 
@@ -240,6 +243,7 @@ config:
       commands:
         # Apply files to installation
         - rsync -rtv /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/ "$CONFIG_PATHS_WEBROOT/"
+        - rm -f $CONFIG_PATHS_WEBROOT/*.sql
         
     - title: "Configure composer"
       commands:

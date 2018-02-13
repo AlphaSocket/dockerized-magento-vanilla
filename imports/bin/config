@@ -17,6 +17,11 @@ SECONDS_BETWEEN_TRIES=1
 c=0
 while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi; echo "Waiting for db.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done
 
+# Removing old magento installation data
+echo "### Removing old magento installation data..."
+rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
+echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_DB_NAME}\`;" | mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}
+
 # Install magento sample data
 echo "### Install magento sample data..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
@@ -28,7 +33,6 @@ fi
 # Install magento
 echo "### Install magento..."
 if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
-    rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf;
     envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env;
     $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
     rm -f /tmp/magento_vanilla_env;
@@ -37,6 +41,7 @@ fi
 echo "### Install magento sample data..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
     rsync -rtv /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/ "$CONFIG_PATHS_WEBROOT/";
+    rm -f $CONFIG_PATHS_WEBROOT/*.sql;
 fi
 # Configure composer
 echo "### Configure composer..."
