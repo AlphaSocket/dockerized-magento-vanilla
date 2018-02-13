@@ -5,7 +5,7 @@ php=$(which php)
 n98magerun=$(which n98-magerun.phar)
 composer=$(which composer.phar)
 mysql=$(which mysql)
-mageconfigsync=$(which mageconfigsync)
+mageconfigsync=$(which mageconfigsync.phar)
 # General
 project_name="$CONFIG_PROJECT_CODENAME"
 project_description="$CONFIG_PROJECT_DESCRIPTION"
