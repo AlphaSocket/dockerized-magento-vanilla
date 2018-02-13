@@ -25,7 +25,7 @@ ENV \
 	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
 	BUILD_FROM="docker.io/alphasocket/magento-cli-alpine:latest" \
-	BUILD_PORTS_MAIN="80" \
+	BUILD_PORTS_MAIN="" \
 	BUILD_PORTS_ADDITIONAL="" \
 	BUILD_WORKDIR="/var/www/html" \
 	BUILD_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
@@ -98,8 +98,8 @@ RUN if [ ! -d "/usr/local/bin/setup" ]; then \
 
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
-ADD imports/bin/setup /usr/local/bin/setup/1518483492
-ADD imports/bin/config /usr/local/bin/config/1518483492
+ADD imports/bin/setup /usr/local/bin/setup/1518487839
+ADD imports/bin/config /usr/local/bin/config/1518487839
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -107,9 +107,9 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518483492 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518487839 1>/dev/stdout 2>/dev/stderr
 
-EXPOSE 80 
+
 WORKDIR /var/www/html
 
 ENTRYPOINT ["/bin/sh", "-c"]
