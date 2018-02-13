@@ -45,6 +45,10 @@ setup:
       
   # Setup Processes
   processes:
+    - title: "Install dependencies"
+      shell_condition: '! -z "$SETUP_DEPENDENCIES_CONFIG$SETUP_DEPENDENCIES_SETUP"'
+      commands:
+        - "apk add --no-cache $SETUP_DEPENDENCIES_CONFIG $SETUP_DEPENDENCIES_SETUP"
     - title: "Warming composer and n98 cache for config process"
       commands:
         # Caching Installer
