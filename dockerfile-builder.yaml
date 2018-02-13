@@ -167,10 +167,6 @@ config:
         - curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL
         - chmod +x $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH
     
-    - title: "Clean installation folder"
-      commands:
-        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf 
-
     - title: "Wait until the DB is ready"
       commands:
         - CONDITION="mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}"
@@ -183,10 +179,29 @@ config:
             echo "Waiting for db.. Try $c failed"; 
             sleep ${SECONDS_BETWEEN_TRIES}; 
           done
-
-    - title: "Install magento if not installed"
+          
+    - title: "Install magento sample data"
+      shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
+      commands:
+        # Download sample data
+        - if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION) 2>/dev/null" ]; then \
+            curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
+          fi
+        # Extract
+        - cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -
+        # Apply files to installation
+        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
+        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
+        - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
+        # Cleaning
+        - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
+    
+    - title: "Install magento"
       shell_condition: '! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml"'
       commands:
+        # Cleaning folder
+        - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
+        
         # Building env file
         #- envsubst < /usr/local/templates/.n98-magerun.yaml > ~/.n98-magerun.yaml
         #- if [ "${CONFIG_MAGENTO_DEVELOPER_MODE}" = 'yes' ] ; then DEVELOPER_MODE='--developer-mode'; fi
@@ -215,15 +230,9 @@ config:
         - envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env
         # Magento installation
         - "$CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr"
-        # Cleaning env file
+        # Removing env file
         - rm -f /tmp/magento_vanilla_env
-        
-    #- title: "End magento installation routine"
-    #  commands:
-    #    - n98-magerun.phar cache:enable
-    #    - n98-magerun.phar sys:setup:incremental -n
-    #    - n98-magerun.phar cache:clean
-        
+
     - title: "Configure composer"
       commands:
         #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER} # Alreay initialized in installation
@@ -236,24 +245,6 @@ config:
         #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
         #- composer.phar require studioforty9/toolbox
         
-    - title: "Install magento sample data"
-      shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
-      commands:
-        # Download sample data
-        - if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION) 2>/dev/null" ]; then \
-            curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
-          fi
-        # Extract
-        - cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -
-        # Apply files to installation
-        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
-        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
-        - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
-        # Restoring admin removed by sample data query
-        - n98-magerun.phar admin:user:create -n "$CONFIG_ADMIN_USERNAME" "$CONFIG_ADMIN_EMAIL" "$CONFIG_ADMIN_PASS" "$CONFIG_ADMIN_FIRSTNAME" "$CONFIG_ADMIN_LASTNAME"
-        # Cleaning
-        - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
-
     - title: "Setup redis config"
       shell_condition: '"$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE"'
       commands:
