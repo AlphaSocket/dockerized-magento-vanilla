@@ -14,6 +14,7 @@ Magento vanilla container
 
 ## Packages installed
 - Config dependencies:
+  + rsync
   + gettext
 
 

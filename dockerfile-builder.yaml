@@ -25,10 +25,10 @@ setup:
   # Setup env 
   envvars:
     dependencies:
-      # Dependencies installed in the image
+      # Dependencies used during setup
       setup: ""
-      # Dependencies installed during runtime
-      config: "gettext"
+      # Dependencies used during runtime
+      config: "rsync gettext"
     cache:
       magento:
         installer:
@@ -189,9 +189,7 @@ config:
           fi
         # Extract
         - cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -
-        # Apply files to installation
-        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/media/* "$CONFIG_PATHS_WEBROOT/media/"
-        - cp -r /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/skin/* "$CONFIG_PATHS_WEBROOT/skin/"
+        # Apply files to DB
         - mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql
         # Cleaning
         - rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf
@@ -233,6 +231,12 @@ config:
         # Removing env file
         - rm -f /tmp/magento_vanilla_env
 
+    - title: "Install magento sample data"
+      shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
+      commands:
+        # Apply files to installation
+        - rsync -rtv /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/ "$CONFIG_PATHS_WEBROOT/"
+        
     - title: "Configure composer"
       commands:
         #- composer.phar init -n --working-dir=${CONFIG_MAGENTO_INSTALL_FOLDER} # Alreay initialized in installation
