@@ -3,10 +3,10 @@
 Magento vanilla container
 
 
-| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-magento-vanilla/branches/latest/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-magento-vanilla) | Layers | Size  |
+| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-magento-vanilla/branches/latest-cached/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-magento-vanilla) | Layers | Size  |
 | ----- | ----- | ----- |
-| Dev image | [![](https://images.microbadger.com/badges/image/03192859189254/dockerized-magento-vanilla:latest.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest ) | [![](https://images.microbadger.com/badges/version/03192859189254/dockerized-magento-vanilla:latest.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest) |
-| Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/magento-vanilla:latest.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest ) | [![](https://images.microbadger.com/badges/version/alphasocket/magento-vanilla:latest.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest) |
+| Dev image | [![](https://images.microbadger.com/badges/image/03192859189254/dockerized-magento-vanilla:latest-cached.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest-cached ) | [![](https://images.microbadger.com/badges/version/03192859189254/dockerized-magento-vanilla:latest-cached.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest-cached) |
+| Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/magento-vanilla:latest-cached.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest-cached ) | [![](https://images.microbadger.com/badges/version/alphasocket/magento-vanilla:latest-cached.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest-cached) |
 
 ## Branches & Versions
 - latest

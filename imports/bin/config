@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# exit if a command fails
+set -e
+
+# Install mage-install script 
+echo "### Install mage-install script ..."
+mkdir -p $( dirname ${CONFIG_MAGENTO_INSTALL_SCRIPT_PATH})
+curl -o $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH $CONFIG_MAGENTO_INSTALL_SCRIPT_URL
+chmod +x $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH
+
+# Wait until the DB is ready
+echo "### Wait until the DB is ready..."
+CONDITION="mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}"
+MAX_TRIES=300
+SECONDS_BETWEEN_TRIES=1
+c=0
+while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then exit 1; else c=$(($c + 1)); fi; echo "Waiting for db.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done
+
+# Removing old magento installation data
+echo "### Removing old magento installation data..."
+rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
+echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_DB_NAME}\`;" | mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}
+
+# Install magento sample data
+echo "### Install magento sample data..."
+if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
+    if [ -z "$(ls $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION) 2>/dev/null" ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
+    cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -;
+    mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql;
+    rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf;
+fi
+# Install magento
+echo "### Install magento..."
+if [ ! -s "${CONFIG_MAGENTO_INSTALL_FOLDER}/app/etc/local.xml" ]; then
+    envsubst < $CONFIG_MAGENTO_INSTALL_ENV_PATH > /tmp/magento_vanilla_env;
+    $CONFIG_MAGENTO_INSTALL_SCRIPT_PATH /tmp/magento_vanilla_env 1>/dev/stdout 2>/dev/stderr;
+    rm -f /tmp/magento_vanilla_env;
+fi
+# Install magento sample data
+echo "### Install magento sample data..."
+if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
+    rsync -rtv /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/ "$CONFIG_PATHS_WEBROOT/";
+    rm -f $CONFIG_PATHS_WEBROOT/*.sql;
+fi
+# Configure composer
+echo "### Configure composer..."
+composer.phar config repositories.firegento composer https://packages.firegento.com
+composer.phar config extra.magento-root-dir "."
+composer.phar require magento-hackathon/magento-composer-installer
+composer.phar require firegento/debug
+
+# Setup redis config
+echo "### Setup redis config..."
+if [ "$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
+    [ -d "$CONFIG_PATHS_WEBROOT/app/etc/" ] || mkdir -p "$CONFIG_PATHS_WEBROOT/app/etc/";
+    envsubst < $CONFIG_PATHS_TEMPLATES_REDIS > $CONFIG_PATHS_CONFIG_REDIS;
+    n98-magerun.phar dev:module:enable Cm_RedisSession;
+fi
+# Setup turpentine if requested
+echo "### Setup turpentine if requested..."
+if [ "$CONFIG_TURPENTINE_ENABLED" = "$GENERAL_KEYS_TRUE" ]; then
+    TURPENTINE_SERVERLIST="$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_HOST:$CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT";
+    composer.phar require connect20/nexcessnet_turpentine;
+    n98-magerun.phar config:set turpentine_vcl/backend/backend_host "$CONFIG_TURPENTINE_BACKEND_HOST";
+    n98-magerun.phar config:set turpentine_vcl/backend/backend_port "$CONFIG_TURPENTINE_BACKEND_PORT";
+    n98-magerun.phar config:set turpentine_varnish/servers/server_list "$TURPENTINE_SERVERLIST";
+    n98-magerun.phar config:set turpentine_varnish/servers/auth_key "$CONFIG_TURPENTINE_AUTH_KEY";
+    n98-magerun.phar dev:module:enable Nexcessnet_Turpentine;
+fi
+# End conf
+echo "### End conf..."
+n98-magerun.phar cache:enable
+n98-magerun.phar sys:setup:incremental -n
+n98-magerun.phar index:reindex:all
+php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index'));"
+n98-magerun.phar cache:clean
+n98-magerun.phar sys:check
+echo "### Magento is ready"
+echo "ready" > /tmp/container_status
+
+
+
+exit 0

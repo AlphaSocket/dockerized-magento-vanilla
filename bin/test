@@ -1,0 +1,68 @@
+#!/bin/sh
+
+#
+# Local test script to test docker images
+#
+
+# exit if a command fails
+set -e
+
+CURL=$(which curl)
+DOCKER=$(which docker)
+
+if [ CURL = '' ]; then
+    echo 'The package curl is required\n'
+    exit 1
+fi
+
+if [ DOCKER = '' ]; then
+    echo 'Docker is required\n'
+    exit 1
+fi
+
+echo "#\n# Cleaning docker\n#\n"
+running_containers=$(docker ps -aq)
+if [ "$running_containers" ] 
+    then
+        docker stop $running_containers -t 0 && docker system prune -f
+fi
+echo "# Cleaned"
+
+echo "#\n# Running test\n#\n"
+# Starting pause container
+echo "### Starting pause container..."
+TEST_CONTAINER_PAUSE_ID=$( docker run -d --name=magento-vanilla-pause-tester 03192859189254/dockerized-nginx-tester:latest )
+
+# Starting DB container
+echo "### Starting DB container..."
+TEST_CONTAINER_DB_ID=$( docker run -d --name=magento-vanilla-mariadb-tester --net=container:magento-vanilla-pause-tester -e MYSQL_DATABASE=magento_test -e MYSQL_USER=magento -e MYSQL_PASSWORD=vanillaPass -e MYSQL_ROOT_PASSWORD=root mariadb:latest )
+
+# Starting redis container
+echo "### Starting redis container..."
+TEST_CONTAINER_REDIS_ID=$( docker run -d --name=magento-vanilla-redis-tester --net=container:magento-vanilla-pause-tester -e CONFIG_REDIS_PASS=redisPass docker.io/alphasocket/redis-alpine:latest )
+
+# Starting magento-cli container
+echo "### Starting magento-cli container..."
+TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla --net=container:magento-vanilla-pause-tester -e CONFIG_DB_NAME=magento_test -e CONFIG_DB_USER=magento -e CONFIG_DB_PASS=vanillaPass -e CONFIG_REDIS_HOST=127.0.0.1 -e CONFIG_REDIS_PASS=redisPass 03192859189254/magento-vanilla:latest-cached )
+sleep 1
+TEST_CONTAINER_MAGENTO_CLI_STATUS=$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+
+# Testing magento-cli container
+echo "### Testing magento-cli container..."
+if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+    echo "### Magento-cli container failed, print logs and exiting";
+    docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
+echo "### Magento-cli is running";
+fi
+# Testing magento installation
+echo "### Testing magento installation..."
+if [ "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
+    CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c 'cat /tmp/container_status'";
+    MAX_TRIES=300;
+    SECONDS_BETWEEN_TRIES=1;
+    c=0;
+    while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ] || [ "$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)" != 'true' ]; then echo "Magento installation failed, print logs and exiting\n"; docker logs magento-vanilla; exit 1; else c=$(($c + 1)); echo "Testing container readiness.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; fi; done && echo "### Test Succeeded\n";
+fi
+
+
+exit 0
