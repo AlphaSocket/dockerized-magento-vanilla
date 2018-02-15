@@ -197,7 +197,6 @@ config:
         # Download sample data
         - 'if [ ! -f $CONFIG_SAMPLE_DATA_PATH ]; then
             curl -o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL;
-            # Verify checksum if version is same as cache
             if [ "SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "CONFIG_SAMPLE_DATA_VERSION" ]; then
               SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk "{print $1;}" );
               CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed "s/\.//g");
@@ -249,7 +248,7 @@ config:
         # Removing env file
         - rm -f /tmp/magento_vanilla_env
 
-    - title: "Install magento sample data"
+    - title: "Import magento sample data static files"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Apply files to installation
