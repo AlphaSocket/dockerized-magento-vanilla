@@ -102,9 +102,8 @@ config:
         version:
           valueFromParse: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
         install: True
-        url: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
-        path:
-          valueFromParse: /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip
+        url: "'https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
+        path: "'/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
     admin:
       username: "admin"
       lastname: "Admin"
@@ -195,16 +194,12 @@ config:
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - 'if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then
-            curl -o "$CONFIG_SAMPLE_DATA_PATH" "$CONFIG_SAMPLE_DATA_URL";
+        - if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then
+            echo "-o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL" | envsubst | xargs -exec curl
             if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then
-              SUM=$(md5sum "$CONFIG_SAMPLE_DATA_PATH" | awk "{print $1;}" );
-              CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed "s/\.//g");
-              CHECKSUM="$(eval "echo \$$CHECKSUM_VAR_NAME")";
-              if [ "$CHECKSUM" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi;
+              if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi;
             fi;
-          fi
-          '
+          fi;
         # Extract
         - cat $CONFIG_SAMPLE_DATA_PATH | unzip -d /tmp -
         # Apply files to DB
