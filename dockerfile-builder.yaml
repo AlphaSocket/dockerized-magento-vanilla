@@ -200,7 +200,7 @@ config:
             if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then
               SUM=$(md5sum "$CONFIG_SAMPLE_DATA_PATH" | awk "{print $1;}" );
               CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed "s/\.//g");
-              CHECKSUM="$(eval $( echo "echo \$$CHECKSUM_VAR_NAME"))";
+              CHECKSUM="$(eval "echo \$$CHECKSUM_VAR_NAME")";
               if [ "$CHECKSUM" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi;
             fi;
           fi
@@ -289,7 +289,10 @@ config:
         - n98-magerun.phar cache:clean
         - n98-magerun.phar sys:check
         - echo "### Magento is ready"
-        - echo "ready" > /tmp/container_status
+        
+    - title: "Setting up liveness cron"
+      commands:
+        - (crontab -l ; echo "* * * * * echo 'ready' > /tmp/container_status") | sort - | uniq - | crontab -
 
 test:
   envvars:
