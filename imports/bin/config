@@ -25,7 +25,7 @@ echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_D
 # Install magento sample data
 echo "### Install magento sample data..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then curl -o "$CONFIG_SAMPLE_DATA_PATH" "$CONFIG_SAMPLE_DATA_URL"; if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then SUM=$(md5sum "$CONFIG_SAMPLE_DATA_PATH" | awk "{print $1;}" ); CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed "s/\.//g"); CHECKSUM="$(eval $( echo "echo \$$CHECKSUM_VAR_NAME"))"; if [ "$CHECKSUM" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi; fi; fi ;
+    if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then curl -o "$CONFIG_SAMPLE_DATA_PATH" "$CONFIG_SAMPLE_DATA_URL"; if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then SUM=$(md5sum "$CONFIG_SAMPLE_DATA_PATH" | awk "{print $1;}" ); CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed "s/\.//g"); CHECKSUM="$(eval "echo \$$CHECKSUM_VAR_NAME")"; if [ "$CHECKSUM" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi; fi; fi ;
     cat $CONFIG_SAMPLE_DATA_PATH | unzip -d /tmp -;
     mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql;
     rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf;
@@ -77,7 +77,10 @@ php -r "require_once 'index.php'; Mage::run('','store',array('request'=>'index')
 n98-magerun.phar cache:clean
 n98-magerun.phar sys:check
 echo "### Magento is ready"
-echo "ready" > /tmp/container_status
+
+# Setting up liveness cron
+echo "### Setting up liveness cron..."
+(crontab -l ; echo "* * * * * echo 'ready' > /tmp/container_status") | sort - | uniq - | crontab -
 
 
 
