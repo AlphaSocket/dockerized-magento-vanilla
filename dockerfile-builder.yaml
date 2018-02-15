@@ -205,9 +205,9 @@ config:
               if [ "CHECKSUM" != "SUM" ]; then
                 echo "Checksum verification failed on sample data";
                 exit 1;
-              fi
-            fi
-          fi'
+              fi;
+            fi;
+          fi;'
         # Extract
         - cat $CONFIG_SAMPLE_DATA_PATH | unzip -d /tmp -
         # Apply files to DB
