@@ -10,6 +10,7 @@ Magento vanilla container
 
 ## Branches & Versions
 - latest
+- latest-cached
 
 
 ## Packages installed
