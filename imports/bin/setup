@@ -11,21 +11,22 @@ if [ ! -z "$SETUP_DEPENDENCIES_CONFIG$SETUP_DEPENDENCIES_SETUP" ]; then
 fi
 # Warming composer and n98 cache for config process
 echo "### Warming composer and n98 cache for config process..."
-n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
-mkdir -p /tmp/warmCache
-echo '{"require":{}}' > /tmp/warmCache/composer.json
-composer.phar config --working-dir=/tmp/warmCache repositories.firegento composer https://packages.firegento.com
-composer.phar config --working-dir=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache"
-composer.phar require --working-dir=/tmp/warmCache magento-hackathon/magento-composer-installer
-composer.phar require --working-dir=/tmp/warmCache firegento/debug
-composer.phar require --working-dir=/tmp/warmCache connect20/nexcessnet_turpentine
-rm -rf /tmp/warmCache
-mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH})
-curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
-SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH | awk '{print $1;}' )
-CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\.//g')
-CHECKSUM="$(eval $( echo "echo \$$CHECKSUM_VAR_NAME"))"
-
+if [ "$BUILD_ENV" = "cached" ]; then
+    n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache;
+    mkdir -p /tmp/warmCache;
+    echo '{"require":{}}' > /tmp/warmCache/composer.json;
+    composer.phar config --working-dir=/tmp/warmCache repositories.firegento composer https://packages.firegento.com;
+    composer.phar config --working-dir=/tmp/warmCache extra.magento-root-dir "/tmp/warmCache";
+    composer.phar require --working-dir=/tmp/warmCache magento-hackathon/magento-composer-installer;
+    composer.phar require --working-dir=/tmp/warmCache firegento/debug;
+    composer.phar require --working-dir=/tmp/warmCache connect20/nexcessnet_turpentine;
+    rm -rf /tmp/warmCache;
+    mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH});
+    curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL;
+    SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH | awk '{print $1;}' );
+    CHECKSUM_VAR_NAME=$(echo "SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\.//g');
+    CHECKSUM="$(eval $( echo "echo \$$CHECKSUM_VAR_NAME"))";
+fi
 # Check sample data md5
 echo "### Check sample data md5..."
 if [ "$SUM" != "$CHECKSUM" ]; then

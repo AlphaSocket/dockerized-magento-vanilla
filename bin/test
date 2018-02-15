@@ -44,7 +44,8 @@ TEST_CONTAINER_REDIS_ID=$( docker run -d --name=magento-vanilla-redis-tester --n
 # Starting magento-cli container
 echo "### Starting magento-cli container..."
 TEST_CONTAINER_MAGENTO_CLI_ID=$( docker run -d --name=magento-vanilla --net=container:magento-vanilla-pause-tester -e CONFIG_DB_NAME=magento_test -e CONFIG_DB_USER=magento -e CONFIG_DB_PASS=vanillaPass -e CONFIG_REDIS_HOST=127.0.0.1 -e CONFIG_REDIS_PASS=redisPass 03192859189254/magento-vanilla:latest )
-TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 1 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+sleep 1
+TEST_CONTAINER_MAGENTO_CLI_STATUS=$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
 # Testing magento-cli container
 echo "### Testing magento-cli container..."

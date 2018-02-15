@@ -49,7 +49,9 @@ setup:
       shell_condition: '! -z "$SETUP_DEPENDENCIES_CONFIG$SETUP_DEPENDENCIES_SETUP"'
       commands:
         - "apk add --no-cache $SETUP_DEPENDENCIES_CONFIG $SETUP_DEPENDENCIES_SETUP"
+        
     - title: "Warming composer and n98 cache for config process"
+      shell_condition: '"$BUILD_ENV" = "cached"'
       commands:
         # Caching Installer
         - n98-magerun.phar install --only-download --magentoVersionByName=magento-mirror-${SETUP_CACHE_MAGENTO_INSTALLER_VERSION} --installationFolder=/tmp/warmCache
@@ -252,10 +254,6 @@ config:
         - composer.phar config extra.magento-root-dir "."
         - composer.phar require magento-hackathon/magento-composer-installer
         - composer.phar require firegento/debug
-        # Private repo and package
-        #- composer.phar config repositories.packagist.org false
-        #- composer.phar config repositories.sf9 composer https://packages.sf9dev.com
-        #- composer.phar require studioforty9/toolbox
         
     - title: "Setup redis config"
       shell_condition: '"$CONFIG_REDIS_ENABLED" = "$GENERAL_KEYS_TRUE"'
@@ -347,7 +345,8 @@ test:
               -e CONFIG_REDIS_PASS=$TEST_REDIS_PASS
               ${BUILD_USER}/${BUILD_NAME}:${BUILD_VERSION}
           )
-        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(sleep 1 && docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
+        - sleep 1
+        - TEST_CONTAINER_MAGENTO_CLI_STATUS=$(docker inspect -f '{{.State.Running}}' $TEST_CONTAINER_MAGENTO_CLI_ID)
 
     - title: "Testing magento-cli container"
       shell_condition: '! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true"'
