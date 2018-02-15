@@ -25,7 +25,7 @@ echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_D
 # Install magento sample data
 echo "### Install magento sample data..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    if [ ! -f $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION ]; then \ curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
+    if [ ! -f $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION ]; then curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL; fi;
     cat $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION | unzip -d /tmp -;
     mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS} ${CONFIG_DB_NAME} < /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}/magento_sample_data_for_${CONFIG_SAMPLE_DATA_VERSION}.sql;
     rm /tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.* -rf;
