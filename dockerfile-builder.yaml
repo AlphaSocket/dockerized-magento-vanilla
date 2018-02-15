@@ -196,7 +196,7 @@ config:
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - if [ ! -f $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION ]; then \
+        - if [ ! -f $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION ]; then
             curl -o $CONFIG_SAMPLE_DATA_ARCHIVE_LOCATION $CONFIG_SAMPLE_DATA_URL;
           fi
         # Extract
