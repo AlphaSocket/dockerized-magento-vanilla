@@ -9,8 +9,10 @@ if [ "$CONTAINER_STATUS" != 'ready' ]; then
     exit 1
 fi
 
+EXIT_CODE=1
 if [ ! -z "exit 0" ]; then
-    exec "exit 0"
+    sh -c "exit 0"
+    EXIT_CODE=$?
 fi
 
-exit $?
+exit $EXIT_CODE
