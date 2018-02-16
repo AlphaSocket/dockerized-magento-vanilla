@@ -103,7 +103,7 @@ config:
           valueFromParse: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
         install: True
         url: "'https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
-        path: "'/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
+        path: "/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip"
     admin:
       username: "admin"
       lastname: "Admin"
