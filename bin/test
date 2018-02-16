@@ -52,7 +52,8 @@ echo "### Testing magento-cli container..."
 if [ ! "$TEST_CONTAINER_MAGENTO_CLI_STATUS" = "true" ]; then
     echo "### Magento-cli container failed, print logs and exiting";
     docker logs $TEST_CONTAINER_MAGENTO_CLI_ID;
-echo "### Magento-cli is running";
+else 
+        echo "### Magento-cli is running";
 fi
 # Testing magento installation
 echo "### Testing magento installation..."
