@@ -21,12 +21,14 @@ Magento vanilla container
 
 ## Configurable envvars
 ~~~
+CONFIG_LIVENESS_TEST="exit 0"
+CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status"
+CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml"
+CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml"
 CONFIG_PROJECT_CODENAME="vanilla"
 CONFIG_PROJECT_DESCRIPTION="Magento Vanilla"
 CONFIG_USER="magento-vanilla"
 CONFIG_GROUP="magento"
-CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml"
-CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml"
 CONFIG_SAMPLE_DATA_VERSION="1.9.2.4"
 CONFIG_SAMPLE_DATA_INSTALL="True"
 CONFIG_SAMPLE_DATA_URL="'https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
