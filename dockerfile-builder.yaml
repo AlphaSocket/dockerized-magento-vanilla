@@ -190,20 +190,24 @@ config:
         - rm ${CONFIG_MAGENTO_INSTALL_FOLDER}/* -rf
         - echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_DB_NAME}\`;" | mysql -h${CONFIG_DB_HOST} -u${CONFIG_DB_USER} -p${CONFIG_DB_PASS}
       
-    - title: "Install magento sample data"
+    - title: "Download magento sample data if necessary"
       shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
       commands:
         # Download sample data
-        - if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then
+        - if [ "$BUILD_ENV" != "cached" ]; then
             echo "-o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL" | envsubst | xargs -exec curl;
             if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then
-              SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' )
+              SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' );
               if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then
                   echo "Checksum verification failed on sample data";
                   exit 1;
               fi;
             fi;
           fi
+    
+    - title: "Install magento sample data"
+      shell_condition: '"$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE"'
+      commands:
         # Extract
         - cat $CONFIG_SAMPLE_DATA_PATH | unzip -d /tmp -
         # Apply files to DB
