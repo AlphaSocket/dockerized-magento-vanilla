@@ -82,10 +82,6 @@ n98-magerun.phar cache:clean
 n98-magerun.phar sys:check
 echo "### Magento is ready"
 
-# Setting up liveness cron
-echo "### Setting up liveness cron..."
-(crontab -l ; echo "* * * * * echo 'ready' > /tmp/container_status") | sort - | uniq - | crontab -
-
 
 
 exit 0
