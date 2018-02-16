@@ -197,6 +197,7 @@ config:
         - if [ ! -f "$CONFIG_SAMPLE_DATA_PATH" ]; then
             echo "-o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL" | envsubst | xargs -exec curl;
             if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then
+              SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' )
               if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then
                   echo "Checksum verification failed on sample data";
                   exit 1;
