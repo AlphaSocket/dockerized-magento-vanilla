@@ -3,6 +3,11 @@
 # exit if a command fails
 set -e
 
+# Expand var in env vars
+echo "### Expand var in env vars..."
+export CONFIG_SAMPLE_DATA_PATH=$(echo "$CONFIG_SAMPLE_DATA_PATH" | envsubst)
+export CONFIG_SAMPLE_DATA_URL=$(echo "$CONFIG_SAMPLE_DATA_URL" | envsubst)
+
 # Install mage-install script 
 echo "### Install mage-install script ..."
 mkdir -p $( dirname ${CONFIG_MAGENTO_INSTALL_SCRIPT_PATH})
@@ -25,7 +30,7 @@ echo "DROP DATABASE IF EXISTS \`${CONFIG_DB_NAME}\`;CREATE DATABASE \`${CONFIG_D
 # Download magento sample data if necessary
 echo "### Download magento sample data if necessary..."
 if [ "$CONFIG_SAMPLE_DATA_INSTALL" = "$GENERAL_KEYS_TRUE" ]; then
-    if [ "$BUILD_ENV" != "cached" ]; then echo "-o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL" | envsubst | xargs -exec curl; if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' ); if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi; fi; fi;
+    if [ "$BUILD_ENV" != "cached" ]; then curl -o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL; if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' ); if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then echo "Checksum verification failed on sample data"; exit 1; fi; fi; fi;
 fi
 # Install magento sample data
 echo "### Install magento sample data..."
