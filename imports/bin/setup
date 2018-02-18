@@ -24,7 +24,7 @@ if [ "$BUILD_ENV" = "cached" ]; then
     mkdir -p $( dirname ${SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH});
     curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL;
     SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH | awk '{print $1;}' );
-    CHECKSUM="$(echo "\$SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\.//g' | envsubst )";
+    CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM}";
     if [ "$SUM" != "$CHECKSUM" ]; then echo "### Sample data download failed"; echo "$SUM != $CHECKSUM"; exit 1; fi;
 fi
 

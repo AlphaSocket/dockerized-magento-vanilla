@@ -19,43 +19,45 @@ ENV \
 	GENERAL_KEYS_PRD="prd" \
 	BUILD_USER="03192859189254" \
 	BUILD_REGISTRY="docker.io" \
-	BUILD_NAME="magento-vanilla" \
 	BUILD_REPO="https://github.com/alphaSocket/dockerized-magento-vanilla" \
 	BUILD_BRANCH="latest" \
 	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
-	BUILD_FROM="docker.io/alphasocket/magento-cli-alpine:latest" \
 	BUILD_PORTS_MAIN="" \
 	BUILD_PORTS_ADDITIONAL="" \
+	BUILD_NAME="magento-vanilla" \
+	BUILD_FROM="docker.io/alphasocket/magento-cli-alpine:latest" \
 	BUILD_WORKDIR="/var/www/html" \
 	BUILD_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
 	SETUP_DEPENDENCIES_SETUP="" \
 	SETUP_DEPENDENCIES_CONFIG="rsync gettext" \
 	SETUP_CACHE_MAGENTO_INSTALLER_VERSION="1.9.3.6" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION="1.9.2.4" \
+	SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM="ddb2103137e257006e30b66122caa999" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL="https://netcologne.dl.sourceforge.net/project/mageloads/assets/1.9.2.4/magento-sample-data-1.9.2.4.zip" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH="/tmp/magento-sample-data-1.9.2.4.zip" \
-	SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_1924_MD5="ddb2103137e257006e30b66122caa999" \
-	CONFIG_LIVENESS_TEST="exit 0" \
-	CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status" \
-	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
-	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
+	CONFIG_REDINESS_TEST="true" \
+	CONFIG_LIVENESS_TEST="true" \
 	CONFIG_PROJECT_CODENAME="vanilla" \
 	CONFIG_PROJECT_DESCRIPTION="Magento Vanilla" \
 	CONFIG_USER="magento-vanilla" \
 	CONFIG_GROUP="magento" \
-	CONFIG_SAMPLE_DATA_VERSION="1.9.2.4" \
+	CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status" \
+	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
+	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
 	CONFIG_SAMPLE_DATA_INSTALL="True" \
-	CONFIG_SAMPLE_DATA_URL='https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip' \
+	CONFIG_SAMPLE_DATA_VERSION="1.9.2.4" \
 	CONFIG_SAMPLE_DATA_PATH='/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip' \
+	CONFIG_SAMPLE_DATA_URL='https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip' \
+	CONFIG_SAMPLE_DATA_CHECKSUM="ddb2103137e257006e30b66122caa999" \
 	CONFIG_ADMIN_USERNAME="admin" \
 	CONFIG_ADMIN_LASTNAME="Admin" \
 	CONFIG_ADMIN_FIRSTNAME="Admin" \
 	CONFIG_ADMIN_EMAIL="jhon@doe.ie" \
 	CONFIG_ADMIN_PASS="password.123" \
 	CONFIG_MAGENTO_VERSION="1.9.3.6" \
-	CONFIG_MAGENTO_USER="$CONFIG_USER" \
-	CONFIG_MAGENTO_GROUP="$CONFIG_GROUP" \
+	CONFIG_MAGENTO_USER="magento-vanilla" \
+	CONFIG_MAGENTO_GROUP="magento" \
 	CONFIG_MAGENTO_URL="http://www.magento.vanilla/" \
 	CONFIG_MAGENTO_INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/AlphaSocket/mage-install/master/install" \
 	CONFIG_MAGENTO_INSTALL_SCRIPT_PATH="$CONFIG_PATHS_BINARIES/mage-install" \
@@ -79,10 +81,10 @@ ENV \
 	CONFIG_DB_USER="root" \
 	CONFIG_DB_PASS="root" \
 	CONFIG_DB_PREFIX="" \
-	CONFIG_REDIS_ENABLED="$GENERAL_KEYS_TRUE" \
+	CONFIG_REDIS_ENABLED="True" \
 	CONFIG_REDIS_HOST="127.0.0.1" \
 	CONFIG_REDIS_PORT="6379" \
-	CONFIG_TURPENTINE_ENABLED="$GENERAL_KEYS_TRUE" \
+	CONFIG_TURPENTINE_ENABLED="True" \
 	CONFIG_TURPENTINE_BACKEND_HOST="127.0.0.1" \
 	CONFIG_TURPENTINE_BACKEND_PORT="8080" \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_HOST="127.0.0.1" \
@@ -102,8 +104,8 @@ ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1518814455
-ADD imports/bin/config /usr/local/bin/config/1518814455
+ADD imports/bin/setup /usr/local/bin/setup/1518917109
+ADD imports/bin/config /usr/local/bin/config/1518917109
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -111,7 +113,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518814455 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1518917109 1>/dev/stdout 2>/dev/stderr
 
 
 WORKDIR /var/www/html
