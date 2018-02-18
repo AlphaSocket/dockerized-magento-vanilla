@@ -343,7 +343,7 @@ test:
               -e MYSQL_USER=$TEST_DB_USER
               -e MYSQL_PASSWORD=$TEST_DB_PASS
               -e MYSQL_ROOT_PASSWORD=$TEST_DB_ROOT_PASS
-              ${CACHE_IMAGES_DB}
+              ${CACHE_IMAGES_DATABASE}
           )
 
     - title: "Starting redis container"
