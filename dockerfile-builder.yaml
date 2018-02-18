@@ -35,13 +35,11 @@ setup:
           version: 1.9.3.6
         sample_data:
           version: 1.9.2.4
+          checksum: "ddb2103137e257006e30b66122caa999"
           url:
             valueFromParse: https://netcologne.dl.sourceforge.net/project/mageloads/assets/${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
           path:
             valueFromParse: /tmp/magento-sample-data-${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}.zip
-          checksum:
-            1924:
-              md5: "ddb2103137e257006e30b66122caa999"
       
   # Setup Processes
   processes:
@@ -68,7 +66,7 @@ setup:
         - curl -o $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH $SETUP_CACHE_MAGENTO_SAMPLE_DATA_URL
         # Check sample data md5
         - SUM=$(md5sum $SETUP_CACHE_MAGENTO_SAMPLE_DATA_PATH | awk '{print $1;}' )
-        - CHECKSUM="$(echo "\$SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM_${SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION}_MD5" | sed 's/\.//g' | envsubst )"
+        - CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM}"
         - if [ "$SUM" != "$CHECKSUM" ]; then
             echo "### Sample data download failed";
             echo "$SUM != $CHECKSUM";
@@ -90,16 +88,18 @@ config:
       templates:
         redis: /usr/local/templates/redis.xml
       config:
-        redis:
-          valueFromParse: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
+        redis: $CONFIG_PATHS_WEBROOT/app/etc/redis.xml
     
     sample:
       data:
+        install: True
         version:
           valueFromParse: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION
-        install: True
-        url: "'https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
         path: "'/tmp/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
+        url: "'https://netcologne.dl.sourceforge.net/project/mageloads/assets/${CONFIG_SAMPLE_DATA_VERSION}/magento-sample-data-${CONFIG_SAMPLE_DATA_VERSION}.zip'"
+        checksum:
+          valueFromParse: $SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM
+          
     admin:
       username: "admin"
       lastname: "Admin"
@@ -110,8 +110,10 @@ config:
     magento:
       version:
         valueFromParse: $SETUP_CACHE_MAGENTO_INSTALLER_VERSION
-      user: $CONFIG_USER
-      group: $CONFIG_GROUP
+      user:
+        valueFromParse: $CONFIG_USER
+      group:
+        valueFromParse: $CONFIG_GROUP
       url: "http://www.magento.vanilla/"
       install:
         script:
@@ -145,11 +147,13 @@ config:
       pass: "root"
       prefix: ""
     redis:
-      enabled: $GENERAL_KEYS_TRUE
+      enabled:
+        valueFromParse: $GENERAL_KEYS_TRUE
       host: 127.0.0.1
       port: 6379
     turpentine:
-      enabled: $GENERAL_KEYS_TRUE
+      enabled:
+        valueFromParse: $GENERAL_KEYS_TRUE
       backend:
         host: 127.0.0.1
         port: 8080
@@ -197,12 +201,10 @@ config:
         # Download sample data
         - if [ "$BUILD_ENV" != "cached" ]; then
             curl -o $CONFIG_SAMPLE_DATA_PATH $CONFIG_SAMPLE_DATA_URL;
-            if [ "$SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION" = "$CONFIG_SAMPLE_DATA_VERSION" ]; then
-              SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' );
-              if [ "ddb2103137e257006e30b66122caa999" != "$SUM" ]; then
-                  echo "Checksum verification failed on sample data";
-                  exit 1; 
-              fi;
+            SUM=$(md5sum $CONFIG_SAMPLE_DATA_PATH | awk '{print $1;}' );
+            if [ "$CONFIG_SAMPLE_DATA_CHECKSUM" != "$SUM" ]; then
+                echo "Checksum verification failed on sample data";
+                exit 1; 
             fi;
           fi
     
@@ -294,6 +296,19 @@ config:
         - n98-magerun.phar sys:check
         - echo "### Magento is ready"
         
+cache:
+  envvars:
+    images:
+      from:
+        valueFromParse: $BUILD_FROM
+      pause: 03192859189254/dockerized-nginx-tester:latest
+      database: mariadb:latest
+      redis: docker.io/alphasocket/redis-alpine:latest
+  docker_images:
+    - $CACHE_IMAGES_FROM
+    - $CACHE_IMAGES_PAUSE
+    - $CACHE_IMAGES_DATABASE
+    - $CACHE_IMAGES_REDIS
 
 test:
   envvars:
@@ -315,7 +330,7 @@ test:
         - TEST_CONTAINER_PAUSE_ID=$(
             docker run 
               -d --name=${TEST_CONTAINER_NAME}-pause-tester
-              03192859189254/dockerized-nginx-tester:latest
+              ${CACHE_IMAGES_PAUSE}
           )
 
     - title: "Starting DB container"
@@ -328,7 +343,7 @@ test:
               -e MYSQL_USER=$TEST_DB_USER
               -e MYSQL_PASSWORD=$TEST_DB_PASS
               -e MYSQL_ROOT_PASSWORD=$TEST_DB_ROOT_PASS
-              mariadb:latest
+              ${CACHE_IMAGES_DB}
           )
 
     - title: "Starting redis container"
@@ -338,7 +353,7 @@ test:
               -d --name=${TEST_CONTAINER_NAME}-redis-tester
               --net=container:${TEST_CONTAINER_NAME}-pause-tester
               -e CONFIG_REDIS_PASS=$TEST_REDIS_PASS
-              docker.io/alphasocket/redis-alpine:latest
+              ${CACHE_IMAGES_REDIS}
           )
 
     - title: "Starting magento-cli container"

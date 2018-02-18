@@ -10,12 +10,12 @@ set -e
 CURL=$(which curl)
 DOCKER=$(which docker)
 
-if [ CURL = '' ]; then
+if [ "$CURL" = '' ]; then
     echo 'The package curl is required\n'
     exit 1
 fi
 
-if [ DOCKER = '' ]; then
+if [ "$DOCKER" = '' ]; then
     echo 'Docker is required\n'
     exit 1
 fi
@@ -35,7 +35,7 @@ TEST_CONTAINER_PAUSE_ID=$( docker run -d --name=magento-vanilla-pause-tester 031
 
 # Starting DB container
 echo "### Starting DB container..."
-TEST_CONTAINER_DB_ID=$( docker run -d --name=magento-vanilla-mariadb-tester --net=container:magento-vanilla-pause-tester -e MYSQL_DATABASE=magento_test -e MYSQL_USER=magento -e MYSQL_PASSWORD=vanillaPass -e MYSQL_ROOT_PASSWORD=root mariadb:latest )
+TEST_CONTAINER_DB_ID=$( docker run -d --name=magento-vanilla-mariadb-tester --net=container:magento-vanilla-pause-tester -e MYSQL_DATABASE=magento_test -e MYSQL_USER=magento -e MYSQL_PASSWORD=vanillaPass -e MYSQL_ROOT_PASSWORD=root ${CACHE_IMAGES_DB} )
 
 # Starting redis container
 echo "### Starting redis container..."
