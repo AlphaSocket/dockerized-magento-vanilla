@@ -385,7 +385,7 @@ test:
       commands:
         #- MAGENTO_INSTALLATION_REPORT=$(sleep 10 && docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /bin/sh -c "n98-magerun.phar sys:check" )
         #- MAGENTO_INSTALLATION_REPORT_TEST=$(echo "$MAGENTO_INSTALLATION_REPORT" | grep -q "app/etc/local.xml" && echo "Success")
-        - CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /usr/local/bin/docker-readiness-test"
+        - CONDITION="docker exec $TEST_CONTAINER_MAGENTO_CLI_ID /usr/local/bin/docker-rediness-test"
         - MAX_TRIES=300
         - SECONDS_BETWEEN_TRIES=1
         - c=0
