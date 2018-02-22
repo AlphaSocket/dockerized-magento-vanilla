@@ -14,7 +14,7 @@ fi
 echo "#\n# Warming cache\n#\n"
 for image in docker.io/alphasocket/magento-cli-alpine:latest 03192859189254/dockerized-nginx-tester:latest mariadb:latest docker.io/alphasocket/redis-alpine:latest
 do 
-    docker pull ${image} 1>/dev/null;
+    docker pull ${image} 1>/dev/null & true;
 done
 
 exit 0
