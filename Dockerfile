@@ -29,8 +29,12 @@ ENV \
 	BUILD_FROM="docker.io/alphasocket/magento-cli-alpine:latest" \
 	BUILD_WORKDIR="/var/www/html" \
 	BUILD_CMD="/usr/sbin/crond -f -l $CONFIG_CRON_LOG_LEVEL" \
+	SETUP_PATHS_BINARIES="/usr/local/bin" \
+	SETUP_PATHS_SETUP="/usr/local/bin/setup" \
+	SETUP_PATHS_CONFIG="/usr/local/bin/config" \
 	SETUP_DEPENDENCIES_SETUP="" \
-	SETUP_DEPENDENCIES_CONFIG="rsync gettext" \
+	SETUP_DEPENDENCIES_RUNTIME="" \
+	SETUP_DEPENDENCIES_CONFIG="rsync" \
 	SETUP_CACHE_MAGENTO_INSTALLER_VERSION="1.9.3.6" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_VERSION="1.9.2.4" \
 	SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM="ddb2103137e257006e30b66122caa999" \
@@ -40,8 +44,16 @@ ENV \
 	CONFIG_LIVENESS_TEST="true" \
 	CONFIG_PROJECT_CODENAME="vanilla" \
 	CONFIG_PROJECT_DESCRIPTION="Magento Vanilla" \
-	CONFIG_USER="magento-vanilla" \
-	CONFIG_GROUP="magento" \
+	CONFIG_GROUPS_ADDITIONAL_ID="1001" \
+	CONFIG_GROUPS_ADDITIONAL_NAME="" \
+	CONFIG_GROUPS_MAIN_ID="1100" \
+	CONFIG_GROUPS_MAIN_NAME="magento" \
+	CONFIG_USERS_ADDITIONAL_ID="1001" \
+	CONFIG_USERS_ADDITIONAL_NAME="" \
+	CONFIG_USERS_ADDITIONAL_GROUPS="" \
+	CONFIG_USERS_MAIN_ID="1501" \
+	CONFIG_USERS_MAIN_NAME="magento-vanilla" \
+	CONFIG_USERS_MAIN_GROUPS="magento" \
 	CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status" \
 	CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml" \
 	CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml" \
@@ -91,21 +103,12 @@ ENV \
 	CONFIG_TURPENTINE_BACKEND_CONTROL_PANEL_PORT="6082" \
 	CONFIG_TURPENTINE_AUTH_KEY="" \
 	CONFIG_COMPOSER_INIT="yes"
-
-RUN if [ ! -d "/usr/local/bin/setup" ]; then \
-        mkdir -p /usr/local/bin/setup; \
-    fi \
-    && \
-    if [ ! -d "/usr/local/bin/config" ]; then \
-        mkdir -p /usr/local/bin/config; \
-    fi
-
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1518918231
-ADD imports/bin/config /usr/local/bin/config/1518918231
+ADD imports/bin/setup /usr/local/bin/setup/1519258058
+ADD imports/bin/config /usr/local/bin/config/1519258058
 ADD imports/templates/redis.xml /usr/local/templates/redis.xml
 ADD imports/templates/.n98-magerun.yaml /usr/local/templates/.n98-magerun.yaml
 ADD imports/mage_install_env /usr/local/mage_install_env
@@ -113,7 +116,7 @@ ADD imports/mage_install_env /usr/local/mage_install_env
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1518918231 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519258058 1>/dev/stdout 2>/dev/stderr
 
 
 WORKDIR /var/www/html

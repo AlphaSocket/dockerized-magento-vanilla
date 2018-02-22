@@ -25,10 +25,8 @@ setup:
   # Setup env 
   envvars:
     dependencies:
-      # Dependencies used during setup
-      setup: ""
       # Dependencies used during runtime
-      config: "rsync gettext"
+      config: "rsync"
     cache:
       magento:
         installer:
@@ -82,8 +80,15 @@ config:
     project:
       codename: "vanilla"
       description: "Magento Vanilla"
-    user: magento-vanilla
-    group: magento
+    groups:
+      main:
+        id: 1100
+        name: magento
+    users:
+      main:
+        id: 1501
+        name: magento-vanilla
+        groups: magento
     paths:
       templates:
         redis: /usr/local/templates/redis.xml
@@ -111,9 +116,9 @@ config:
       version:
         valueFromParse: $SETUP_CACHE_MAGENTO_INSTALLER_VERSION
       user:
-        valueFromParse: $CONFIG_USER
+        valueFromParse: $CONFIG_USERS_MAIN_NAME
       group:
-        valueFromParse: $CONFIG_GROUP
+        valueFromParse: $CONFIG_GROUPS_MAIN_NAME
       url: "http://www.magento.vanilla/"
       install:
         script:

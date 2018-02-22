@@ -1,8 +1,10 @@
 #!/bin/sh
-#
-
-# exit if a command fails
 set -e
+
+# Install all dependencies
+echo "### Install all dependencies..."
+apk add --no-cache gettext $SETUP_DEPENDENCIES_SETUP $SETUP_DEPENDENCIES_CONFIG $SETUP_DEPENDENCIES_RUNTIME
+
 
 # Install dependencies
 echo "### Install dependencies..."
@@ -27,6 +29,7 @@ if [ "$BUILD_ENV" = "cached" ]; then
     CHECKSUM="${SETUP_CACHE_MAGENTO_SAMPLE_DATA_CHECKSUM}";
     if [ "$SUM" != "$CHECKSUM" ]; then echo "### Sample data download failed"; echo "$SUM != $CHECKSUM"; exit 1; fi;
 fi
+
 
 
 exit 0

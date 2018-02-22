@@ -3,7 +3,7 @@
 Magento vanilla container
 
 
-| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-magento-vanilla/branches/latest/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-magento-vanilla) | Layers | Size  |
+| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-magento-vanilla/branches/latest/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-magento-vanilla) | Size / Layers | Version |
 | ----- | ----- | ----- |
 | Dev image | [![](https://images.microbadger.com/badges/image/03192859189254/dockerized-magento-vanilla:latest.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest ) | [![](https://images.microbadger.com/badges/version/03192859189254/dockerized-magento-vanilla:latest.svg)](https://microbadger.com/images/03192859189254/magento-vanilla:latest) |
 | Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/magento-vanilla:latest.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest ) | [![](https://images.microbadger.com/badges/version/alphasocket/magento-vanilla:latest.svg)](https://microbadger.com/images/alphasocket/magento-vanilla:latest) |
@@ -16,7 +16,6 @@ Magento vanilla container
 ## Packages installed
 - Config dependencies:
   + rsync
-  + gettext
 
 
 ## Configurable envvars
@@ -25,8 +24,16 @@ CONFIG_REDINESS_TEST="true"
 CONFIG_LIVENESS_TEST="true"
 CONFIG_PROJECT_CODENAME="vanilla"
 CONFIG_PROJECT_DESCRIPTION="Magento Vanilla"
-CONFIG_USER="magento-vanilla"
-CONFIG_GROUP="magento"
+CONFIG_GROUPS_ADDITIONAL_ID="1001"
+CONFIG_GROUPS_ADDITIONAL_NAME=""
+CONFIG_GROUPS_MAIN_ID="1100"
+CONFIG_GROUPS_MAIN_NAME="magento"
+CONFIG_USERS_ADDITIONAL_ID="1001"
+CONFIG_USERS_ADDITIONAL_NAME=""
+CONFIG_USERS_ADDITIONAL_GROUPS=""
+CONFIG_USERS_MAIN_ID="1501"
+CONFIG_USERS_MAIN_NAME="magento-vanilla"
+CONFIG_USERS_MAIN_GROUPS="magento"
 CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status"
 CONFIG_PATHS_TEMPLATES_REDIS="/usr/local/templates/redis.xml"
 CONFIG_PATHS_CONFIG_REDIS="$CONFIG_PATHS_WEBROOT/app/etc/redis.xml"
